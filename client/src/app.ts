@@ -1,7 +1,5 @@
+import * as Game from 'game/game';
+
 import 'sass/app';
 
-const sayHi = () => {
-    console.log('hi');
-};
-
-sayHi();
+Game.Init();
