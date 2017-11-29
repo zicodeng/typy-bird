@@ -41,7 +41,7 @@ module.exports = {
 						loader: 'babel-loader',
 						options: {
 							presets: ['es2015', 'react'],
-							sourceMap: true
+							cacheDirectory: true
 						}
 					},
 					{
@@ -59,6 +59,15 @@ module.exports = {
 				include: /src/,
 				use: ExtractTextPlugin.extract({
 					use: [
+						{ loader: 'cache-loader' },
+						{
+							loader: 'thread-loader',
+							options: {
+								workers: 3,
+								workerParallelJobs: 2,
+								poolParallelJobs: 10
+							}
+						},
 						{
 							loader: 'css-loader',
 							options: {
