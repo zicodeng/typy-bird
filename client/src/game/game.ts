@@ -23,12 +23,15 @@ export const Init = (): void => {
 		throw new Error('Canvas is null');
 	}
 
-	// Set canvas size.
-	bgCanvas.style.width = '1500px';
-	bgCanvas.style.height = '650px';
+	const canvasWidth = '1200px';
+	const canvasHeight = '600px';
 
-	fgCanvas.style.width = '1500px';
-	fgCanvas.style.height = '650px';
+	// Set canvas size.
+	bgCanvas.style.width = canvasWidth;
+	bgCanvas.style.height = canvasHeight;
+
+	fgCanvas.style.width = canvasWidth;
+	fgCanvas.style.height = canvasHeight;
 
 	const canvas: GameCanvas = {
 		bgCanvas: bgCanvas,
