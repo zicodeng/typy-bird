@@ -1,0 +1,41 @@
+{
+	"name": "typy-bird",
+	"version": "1.0.0",
+	"description": "Typy Bird is a multiplayer web-based typing game",
+	"main": "index.js",
+	"scripts": {
+		"start": "webpack-dev-server --color --progress",
+		"build": "webpack --color --progress",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Zico Deng",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/react": "^16.0.25",
+		"@types/react-dom": "^16.0.3",
+		"axios": "^0.17.1",
+		"babel-core": "^6.26.0",
+		"babel-loader": "^7.1.2",
+		"babel-preset-es2015": "^6.24.1",
+		"babel-preset-react": "^6.24.1",
+		"cache-loader": "^1.2.0",
+		"compass-mixins": "^0.12.10",
+		"css-loader": "^0.28.7",
+		"extract-text-webpack-plugin": "^3.0.2",
+		"fork-ts-checker-webpack-plugin": "^0.2.9",
+		"html-webpack-plugin": "^2.30.1",
+		"node-sass": "^4.7.2",
+		"react": "^16.2.0",
+		"react-dom": "^16.2.0",
+		"sass-lint": "^1.12.1",
+		"sass-loader": "^6.0.6",
+		"style-loader": "^0.19.0",
+		"thread-loader": "^1.1.2",
+		"ts-loader": "^3.1.1",
+		"typescript": "^2.6.2",
+		"uglifyjs-webpack-plugin": "^1.1.1",
+		"webpack": "^3.8.1",
+		"webpack-dev-server": "^2.9.5",
+		"webpack-module-hot-accept": "^1.0.5"
+	}
+}
