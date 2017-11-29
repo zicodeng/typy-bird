@@ -63,4 +63,14 @@ entire WBS is subjective to change.
 
 ## Client-Side
 
+Install all dependencies.
+
+    npm install
+
+Start webpack dev server.
+
+    npm run start
+
+Note: you do not need to refresh the page by yourself. The page will be automatically refreshed.
+
 ## Server-Side
