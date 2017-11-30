@@ -1,3 +1,26 @@
 @import 'compass';
 @import 'helpers/module';
 @import 'base/module';
+
+body {
+	overflow: hidden;
+	background-color: $blue;
+}
+
+canvas {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	@include transform(translate(-50%, -50%));
+
+	/* Prevent the user from dragging and dropping the images on canvas. */
+	user-select: none;
+}
+
+#fg-canvas {
+	z-index: 1;
+}
+
+#bg-canvas {
+	z-index: 0;
+}
