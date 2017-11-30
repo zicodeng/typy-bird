@@ -1,5 +1,6 @@
 import { GameState } from './game';
 import Typie from './entities/typie';
+import Cloud from './entities/cloud';
 
 export interface Entity {
 	type: string;
@@ -30,4 +31,19 @@ export const EntitiesInit = (state: GameState): void => {
 		let posY = canvasHeight / typieCount * i + canvasHeight / typieCount / 2;
 		state.entities.typies.push(new Typie(state.spritesheet, 100, posY));
 	}
+
+	// Define cloud positions.
+	var cloudPos = [
+		[Math.floor(canvasWidth / 10 * 0.5), Math.floor(canvasHeight / 10 * 6.5)],
+		[Math.floor(canvasWidth / 10 * 2), Math.floor(canvasHeight / 10 * 2)],
+		[Math.floor(canvasWidth / 10 * 5), Math.floor(canvasHeight / 10 * 5)],
+		[Math.floor(canvasWidth / 10 * 8), Math.floor(canvasHeight / 10 * 4)],
+		[Math.floor(canvasWidth / 10 * 4), Math.floor(canvasHeight / 10 * 9)],
+		[Math.floor(canvasWidth / 10 * 9), Math.floor(canvasHeight / 10 * 0.5)]
+	];
+
+	state.entities.clouds = [];
+	cloudPos.forEach(function(pos) {
+		state.entities.clouds.push(new Cloud(state.spritesheet, pos[0], pos[1]));
+	});
 };

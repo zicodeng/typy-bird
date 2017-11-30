@@ -28,7 +28,7 @@ export const Init = (): void => {
 	}
 
 	const bgCtx = bgCanvas.getContext('2d');
-	const fgCtx = bgCanvas.getContext('2d');
+	const fgCtx = fgCanvas.getContext('2d');
 
 	if (!bgCtx || !fgCtx) {
 		throw new Error('Canvas context is null');

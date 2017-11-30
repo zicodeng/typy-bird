@@ -12,7 +12,12 @@ interface Text {
 // Initialize game environment entities on background canvas.
 // These entities will not interact with each other,
 // but they might interact with foreground entities.
-export const RenderInit = (state: GameState): void => {};
+export const RenderInit = (state: GameState): void => {
+	// Draw clouds.
+	state.entities.clouds.forEach(cloud => {
+		drawEntity(cloud, state.canvas.bgCtx);
+	});
+};
 
 // Render game entities on foreground canvas.
 // These entities will frequently interact with each other,
