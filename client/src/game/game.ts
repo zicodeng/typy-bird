@@ -1,5 +1,6 @@
 import { EntitiesInit } from './entities';
 import { RenderInit, RenderUpdate } from 'game/render';
+import { AnimUpdate } from './anim';
 
 const Spritesheet = require('spritesheet/game.png');
 
@@ -72,12 +73,17 @@ export const Init = (): void => {
 // Running the game.
 const run = (state: GameState): void => {
 	const loop = () => {
+		update(state);
 		render(state);
 
 		state.animFrame++;
 		window.requestAnimationFrame(loop);
 	};
 	loop();
+};
+
+const update = (state: GameState): void => {
+	AnimUpdate(state);
 };
 
 const render = (state: GameState): void => {
