@@ -19,6 +19,11 @@ export const RenderInit = (state: GameState): void => {};
 // and update game state.
 export const RenderUpdate = (state: GameState): void => {
 	state.canvas.fgCtx.clearRect(0, 0, state.canvas.fgCanvas.width, state.canvas.fgCanvas.height);
+
+	// Draw Typies.
+	state.entities.typies.forEach(typie => {
+		drawEntity(typie, state.canvas.fgCtx);
+	});
 };
 
 const drawEntity = (entity: Entity, ctx: CanvasRenderingContext2D): void => {

@@ -1,4 +1,5 @@
 import { GameState } from './game';
+import Typie from './entities/typie';
 
 export interface Entity {
 	type: string;
@@ -19,4 +20,14 @@ export default class Sprite {
 	) {}
 }
 
-export const EntitiesInit = (state: GameState): void => {};
+export const EntitiesInit = (state: GameState): void => {
+	const canvasWidth = state.canvas.fgCanvas.width;
+	const canvasHeight = state.canvas.fgCanvas.height;
+
+	const typieCount = 4;
+	state.entities.typies = [];
+	for (let i = 0; i < typieCount; i++) {
+		let posY = canvasHeight / typieCount * i + canvasHeight / typieCount / 2;
+		state.entities.typies.push(new Typie(state.spritesheet, 100, posY));
+	}
+};

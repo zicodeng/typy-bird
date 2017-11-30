@@ -14,7 +14,7 @@ export interface GameState {
 	spritesheet: HTMLImageElement;
 	canvas: GameCanvas;
 	animFrame: number;
-	entities: object;
+	entities: any;
 }
 
 // Initialize the game.
@@ -33,15 +33,17 @@ export const Init = (): void => {
 		throw new Error('Canvas context is null');
 	}
 
-	const canvasWidth = '1200px';
-	const canvasHeight = '600px';
+	// Don't use CSS style to set Canvas size,
+	// because it will cause scaling issues to entities.
+	const canvasWidth = window.innerWidth;
+	const canvasHeight = window.innerHeight;
 
 	// Set canvas size.
-	bgCanvas.style.width = canvasWidth;
-	bgCanvas.style.height = canvasHeight;
+	bgCanvas.width = canvasWidth;
+	bgCanvas.height = canvasHeight;
 
-	fgCanvas.style.width = canvasWidth;
-	fgCanvas.style.height = canvasHeight;
+	fgCanvas.width = canvasWidth;
+	fgCanvas.height = canvasHeight;
 
 	const canvas: GameCanvas = {
 		bgCanvas: bgCanvas,
