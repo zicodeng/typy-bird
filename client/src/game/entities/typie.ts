@@ -32,7 +32,7 @@ class Typie implements Entity {
 		this.targetWidth = targetWidth;
 		this.targetHeight = targetHeight;
 
-		this.velocityX = 0;
+		this.velocityX = 3;
 		this.velocityY = 0;
 
 		this.spriteAnims = {
@@ -51,6 +51,10 @@ class Typie implements Entity {
 			moving: {
 				movement: (state: GameState) => {
 					this.targetX += this.velocityX;
+					// Jump
+					if (this.velocityY === 0) {
+						this.velocityY = -15;
+					}
 				},
 				anim: (state: GameState) => {
 					if (state.animFrame % 5 === 0) {

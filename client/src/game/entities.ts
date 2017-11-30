@@ -52,6 +52,6 @@ export const EntitiesInit = (state: GameState): void => {
 	state.entities.hearts = [];
 	for (let i = 0; i < heartCount; i++) {
 		let posY = canvasHeight / typieCount * i + canvasHeight / typieCount / 2;
-		state.entities.typies.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
+		state.entities.hearts.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
 	}
 };
