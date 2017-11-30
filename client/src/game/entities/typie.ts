@@ -12,6 +12,9 @@ class Typie implements Entity {
 	public targetWidth: number;
 	public targetHeight: number;
 
+	public initTargetX;
+	public initTargetY;
+
 	public velocityX: number;
 	public velocityY: number;
 
@@ -31,6 +34,9 @@ class Typie implements Entity {
 		this.targetY = targetY;
 		this.targetWidth = targetWidth;
 		this.targetHeight = targetHeight;
+
+		this.initTargetX = targetX;
+		this.initTargetY = targetY;
 
 		this.velocityX = 3;
 		this.velocityY = 0;
@@ -53,7 +59,7 @@ class Typie implements Entity {
 					this.targetX += this.velocityX;
 					// Jump
 					if (this.velocityY === 0) {
-						this.velocityY = -15;
+						this.velocityY = -14;
 					}
 				},
 				anim: (state: GameState) => {

@@ -1,3 +1,4 @@
+import { PhysicsUpdate } from './physics';
 import { MovementUpdate } from './movement';
 import { EntitiesInit } from './entities';
 import { RenderInit, RenderUpdate } from 'game/render';
@@ -86,6 +87,7 @@ const run = (state: GameState): void => {
 const update = (state: GameState): void => {
 	AnimUpdate(state);
 	MovementUpdate(state);
+	PhysicsUpdate(state);
 };
 
 const render = (state: GameState): void => {

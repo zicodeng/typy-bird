@@ -10,6 +10,10 @@ export interface Entity {
 	targetY: number;
 	targetWidth: number;
 	targetHeight: number;
+	initTargetX?: number;
+	initTargetY?: number;
+	velocityX?: number;
+	velocityY?: number;
 }
 
 export default class Sprite {
