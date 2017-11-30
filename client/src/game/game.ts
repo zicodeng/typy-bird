@@ -1,10 +1,12 @@
+import * as Render from 'game/render';
+
 const Spritesheet = require('spritesheet/game.png');
 
 interface GameCanvas {
-	bgCanvas: HTMLCanvasElement | null;
-	fgCanvas: HTMLCanvasElement | null;
-	bgCtx: CanvasRenderingContext2D | null;
-	fgCtx: CanvasRenderingContext2D | null;
+	bgCanvas: HTMLCanvasElement;
+	fgCanvas: HTMLCanvasElement;
+	bgCtx: CanvasRenderingContext2D;
+	fgCtx: CanvasRenderingContext2D;
 }
 
 export interface GameState {
@@ -23,6 +25,13 @@ export const Init = (): void => {
 		throw new Error('Canvas is null');
 	}
 
+	const bgCtx = bgCanvas.getContext('2d');
+	const fgCtx = bgCanvas.getContext('2d');
+
+	if (!bgCtx || !fgCtx) {
+		throw new Error('Canvas context is null');
+	}
+
 	const canvasWidth = '1200px';
 	const canvasHeight = '600px';
 
@@ -36,8 +45,8 @@ export const Init = (): void => {
 	const canvas: GameCanvas = {
 		bgCanvas: bgCanvas,
 		fgCanvas: fgCanvas,
-		bgCtx: bgCanvas.getContext('2d'),
-		fgCtx: fgCanvas.getContext('2d')
+		bgCtx: bgCtx,
+		fgCtx: fgCtx
 	};
 
 	var spritesheet = new Image();
@@ -51,16 +60,22 @@ export const Init = (): void => {
 		animFrame: 0,
 		entities: {}
 	};
-	console.log(state);
+	Render.Init(state);
+
 	run(state);
 };
 
 // Running the game.
 const run = (state: GameState): void => {
 	const loop = () => {
-		state.animFrame++;
+		render(state);
 
+		state.animFrame++;
 		window.requestAnimationFrame(loop);
 	};
 	loop();
+};
+
+const render = (state: GameState): void => {
+	Render.Update(state);
 };
