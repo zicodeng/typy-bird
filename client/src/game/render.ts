@@ -29,6 +29,11 @@ export const RenderUpdate = (state: GameState): void => {
 	state.entities.typies.forEach(typie => {
 		drawEntity(typie, state.canvas.fgCtx);
 	});
+
+	// Draw hearts.
+	state.entities.hearts.forEach(heart => {
+		drawEntity(heart, state.canvas.fgCtx);
+	});
 };
 
 const drawEntity = (entity: Entity, ctx: CanvasRenderingContext2D): void => {

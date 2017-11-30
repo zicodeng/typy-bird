@@ -1,6 +1,7 @@
 import { GameState } from './game';
 import Typie from './entities/typie';
 import Cloud from './entities/cloud';
+import Heart from './entities/heart';
 
 export interface Entity {
 	type: string;
@@ -29,7 +30,7 @@ export const EntitiesInit = (state: GameState): void => {
 	state.entities.typies = [];
 	for (let i = 0; i < typieCount; i++) {
 		let posY = canvasHeight / typieCount * i + canvasHeight / typieCount / 2;
-		state.entities.typies.push(new Typie(state.spritesheet, 100, posY));
+		state.entities.typies.push(new Typie(state.spritesheet, 50, posY));
 	}
 
 	// Define cloud positions.
@@ -46,4 +47,11 @@ export const EntitiesInit = (state: GameState): void => {
 	cloudPos.forEach(function(pos) {
 		state.entities.clouds.push(new Cloud(state.spritesheet, pos[0], pos[1]));
 	});
+
+	const heartCount = typieCount;
+	state.entities.hearts = [];
+	for (let i = 0; i < heartCount; i++) {
+		let posY = canvasHeight / typieCount * i + canvasHeight / typieCount / 2;
+		state.entities.typies.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
+	}
 };
