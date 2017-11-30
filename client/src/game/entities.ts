@@ -1,10 +1,4 @@
-export interface Sprite {
-	spritesheet: HTMLImageElement;
-	srcX: number;
-	srcY: number;
-	srcWidth: number;
-	srcHeight: number;
-}
+import { GameState } from './game';
 
 export interface Entity {
 	type: string;
@@ -14,3 +8,15 @@ export interface Entity {
 	targetWidth: number;
 	targetHeight: number;
 }
+
+export default class Sprite {
+	constructor(
+		public spritesheet: HTMLImageElement,
+		public srcX: number,
+		public srcY: number,
+		public srcWidth: number,
+		public srcHeight: number
+	) {}
+}
+
+export const EntitiesInit = (state: GameState): void => {};

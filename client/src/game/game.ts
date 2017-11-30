@@ -1,4 +1,5 @@
-import * as Render from 'game/render';
+import { EntitiesInit } from './entities';
+import { RenderInit, RenderUpdate } from 'game/render';
 
 const Spritesheet = require('spritesheet/game.png');
 
@@ -60,7 +61,8 @@ export const Init = (): void => {
 		animFrame: 0,
 		entities: {}
 	};
-	Render.Init(state);
+	EntitiesInit(state);
+	RenderInit(state);
 
 	run(state);
 };
@@ -77,5 +79,5 @@ const run = (state: GameState): void => {
 };
 
 const render = (state: GameState): void => {
-	Render.Update(state);
+	RenderUpdate(state);
 };
