@@ -1,10 +1,14 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2"
 )
+
+//ErrTypieBirdNotFound is returned when the typie bird can't be found
+var ErrTypieBirdNotFound = errors.New("typie bird not found")
 
 //MongoStore implements Store for MongoDB
 type MongoStore struct {
@@ -26,34 +30,30 @@ func NewMongoStore(sess *mgo.Session, dbName string, collectionName string) *Mon
 }
 
 //GetByID returns the User with the given ID
-// func (s *MongoStore) GetByID(id bson.ObjectId) (*User, error) {
-// 	user := &User{}
-// 	col := s.session.DB(s.dbname).C(s.colname)
-// 	err := col.FindId(id).One(user)
-// 	if err != nil {
-// 		return nil, ErrUserNotFound
-// 	}
-// 	return user, nil
-// }
+func (s *MongoStore) GetByID(id bson.ObjectId) (*TypieBird, error) {
+	typieBird := &TypieBird{}
+	col := s.session.DB(s.dbname).C(s.colname)
+	err := col.FindId(id).One(typieBird)
+	if err != nil {
+		return nil, ErrTypieBirdNotFound
+	}
+	return typieBird, nil
+}
 
 //GetByUserName returns the User with the given Username
-// func (s *MongoStore) GetByUserName(username string) (*User, error) {
-// 	user := &User{}
-// 	col := s.session.DB(s.dbname).C(s.colname)
-// 	err := col.Find(bson.M{"username": username}).One(user)
-// 	if err != nil {
-// 		return nil, ErrUserNotFound
-// 	}
-// 	return user, nil
-// }
+func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
+	typieBird := &TypieBird{}
+	col := s.session.DB(s.dbname).C(s.colname)
+	err := col.Find(bson.M{"username": username}).One(typieBird)
+	if err != nil {
+		return nil, ErrTypieBirdNotFound
+	}
+	return typieBird, nil
+}
 
-//Insert converts the NewUser to a User, inserts
-//it into the database, and returns it
-func (s *MongoStore) Insert(newTypie *TypieBird) (*TypieBird, error) {
-	// user, err := newUser.ToUser()
-	// if err != nil {
-	// 	return nil, err
-	// }
+//Inserts a new typie bird into the mongo store
+//and returns the typie bird
+func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(newTypie); err != nil {
 		return nil, fmt.Errorf("error inserting task: %v", err)
@@ -61,24 +61,16 @@ func (s *MongoStore) Insert(newTypie *TypieBird) (*TypieBird, error) {
 	return newTypie, nil
 }
 
-//Update applies UserUpdates to the given user ID
-// func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
-// 	typie := &User{}
-// 	err := user.ApplyUpdates(updates) 
-// 	if err != nil {
-// 		return fmt.Errorf("error applying updates: %v", err)
-// 	}
-// 	change := mgo.Change{
-// 		Update: bson.M{"$set": updates},
-// 	}
-// 	col := s.session.DB(s.dbname).C(s.colname)
-// 	if _, err := col.FindId(userID).Apply(change, user); err != nil {
-// 		return fmt.Errorf("error updating user: %v", err)
-// 	}
-// 	return nil
-// }
+//inserts a new word from a dictionary into the mongo store
+func (s *MongoStore) InsertWords(word string) (string, error) {
+	col := s.session.DB(s.dbname).C(s.colname)
+	if err := col.Insert(word); err != nil {
+		return "", fmt.Errorf("error inserting task: %v", err)
+	}
+	return word, nil
+}
 
-//Delete deletes the user with the given ID
+//Delete deletes the typie bird with the given ID
 func (s *MongoStore) Delete(userID bson.ObjectId) error {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.RemoveId(userID); err != nil {
