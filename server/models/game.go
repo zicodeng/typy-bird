@@ -1,4 +1,4 @@
-package game
+package models
 
 import (
 	"gopkg.in/mgo.v2/bson"
@@ -6,9 +6,9 @@ import (
 
 //TypieBird represents a player
 type TypieBird struct {
-	ID       bson.ObjectId `json:"id" bson:"_id"`
-	UserName string        `json:"userName"`
-	Record   float32       `json:"record"`
+	ID        bson.ObjectId `json:"id" bson:"_id"`
+	UserName  string        `json:"userName"`
+	Record float32
 }
 
 //Updates represents allowed updates to a user profile

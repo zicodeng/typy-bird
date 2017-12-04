@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"github.com/info344-a17/typy-bird/server/models"
 	"github.com/info344-a17/typy-bird/server/sessions"
 )
@@ -22,7 +21,7 @@ func (ctx *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request
 	switch r.Method {
 	case "PATCH":
 		//decode new record from request body
-		updates := &game.Updates{}
+		updates := &models.Updates{}
 		if err := json.NewDecoder(r.Body).Decode(updates); err != nil {
 			http.Error(w, fmt.Sprintf("error decoding JSON: %v", err), http.StatusBadRequest)
 			return
