@@ -1,10 +1,11 @@
 package sessions
 
 import (
-	"github.com/patrickmn/go-cache"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	"github.com/go-redis/redis"
 )
@@ -20,11 +21,10 @@ type RedisStore struct {
 //NewRedisStore constructs a new RedisStore
 func NewRedisStore(client *redis.Client, sessionDuration time.Duration) *RedisStore {
 	//initialize and return a new RedisStore struct
-	return &RedisStore {
-		Client: client,
+	return &RedisStore{
+		Client:          client,
 		SessionDuration: sessionDuration,
 	}
-	
 }
 
 //Store implementation
@@ -56,10 +56,6 @@ func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 		return fmt.Errorf("could not unmarshal data: %v", err)
 	}
 	rs.Client.Expire(string(key), 0)
-	
-	//for extra-credit using the Pipeline feature of the redis
-	//package to do both the get and the reset of the expiry time
-	//in just one network round trip!
 
 	return nil
 }
