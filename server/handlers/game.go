@@ -1,22 +1,26 @@
 package handlers
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	"time"
+  "gopkg.in/mgo.v2/bson"
 	"fmt"
 	"net/http"
-
+  
+  "github.com/info344-a17/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/sessions"
 )
 
 //HandlerContext keeps track of database information
 type HandlerContext struct {
+	SessionKey   string
 	SessionStore sessions.Store
-	TypieStore   *game.MongoStore
+	TypieStore   *models.MongoStore
 }
 
 //SessionState keeps track of current session information
 type SessionState struct {
 	SessionStart time.Time
-	TypieBird    *game.TypieBird
+	TypieBird    *models.TypieBird
 }
 
 func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
