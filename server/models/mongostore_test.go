@@ -1,6 +1,7 @@
 package models
 
 import (
+	"gopkg.in/mgo.v2/bson"
 	"fmt"
 	"testing"
 	"gopkg.in/mgo.v2"
@@ -11,8 +12,9 @@ import (
 func TestMongoStore(t *testing.T) {
 
 	newTypie1 := &TypieBird {
+		ID :	bson.NewObjectId(),
 		UserName     : "eric",
-		
+
 	}
 
 	// newTypie2 := &TypieBird{
@@ -27,7 +29,7 @@ func TestMongoStore(t *testing.T) {
 	if err != nil {
 		t.Errorf("error getting typie bird: %v", err)
 	}
-	fmt.Println(newTypie1)
+	fmt.Println(typie)
 	typie, err = store.GetByUserName("eric")
 	fmt.Println(typie)
 	if err != nil {
