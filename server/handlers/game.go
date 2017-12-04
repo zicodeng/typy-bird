@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ezhai24/challenges-ezhai24/servers/gateway/sessions"
+	"github.com/ezhai24/typy-bird/server/models"
 )
 
 //HandlerContext keeps track of database information

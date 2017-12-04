@@ -3,8 +3,9 @@ package game
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
+
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //ErrTypieBirdNotFound is returned when the typie bird can't be found
@@ -13,7 +14,7 @@ var ErrTypieBirdNotFound = errors.New("typie bird not found")
 //MongoStore implements Store for MongoDB
 type MongoStore struct {
 	session *mgo.Session
-	dbname string
+	dbname  string
 	colname string
 }
 
@@ -22,9 +23,9 @@ func NewMongoStore(sess *mgo.Session, dbName string, collectionName string) *Mon
 	if sess == nil {
 		panic("nil pointer passed for session")
 	}
-	return &MongoStore {
+	return &MongoStore{
 		session: sess,
-		dbname: dbName,
+		dbname:  dbName,
 		colname: collectionName,
 	}
 }
@@ -51,8 +52,7 @@ func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
 	return typieBird, nil
 }
 
-//Inserts a new typie bird into the mongo store
-//and returns the typie bird
+//InsertTypieBird inserts a new typie bird into the mongo store and returns the typie bird
 func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(newTypie); err != nil {
@@ -61,13 +61,27 @@ func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	return newTypie, nil
 }
 
-//inserts a new word from a dictionary into the mongo store
+//InsertWords inserts a new word from a dictionary into the mongo store
 func (s *MongoStore) InsertWords(word string) (string, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(word); err != nil {
 		return "", fmt.Errorf("error inserting task: %v", err)
 	}
 	return word, nil
+}
+
+//Update updates the bird with `userID` based on the values in `updates`
+func (s *MongoStore) Update(userID bson.ObjectId, updates *Updates) error {
+	change := mgo.Change{
+		Update:    bson.M{"$set": updates},
+		ReturnNew: true,
+	}
+	bird := &TypieBird{}
+	col := s.session.DB(s.dbname).C(s.colname)
+	if _, err := col.FindId(userID).Apply(change, bird); err != nil {
+		return fmt.Errorf("error updating user: %v", err)
+	}
+	return nil
 }
 
 //Delete deletes the typie bird with the given ID

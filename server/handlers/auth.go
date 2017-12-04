@@ -6,12 +6,14 @@ import (
 	"net/http"
 
 	"github.com/ezhai24/challenges-ezhai24/servers/gateway/sessions"
+	"github.com/ezhai24/typy-bird/server/models"
 )
 
 //TypieMeHandler handlers current birds
 func (ctx *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) {
 	//get session state associated with current typie bird
-	sessID, err := sessions.GetState(r, ctx.SessionKey, ctx.SessionStore, &SessionState{})
+	state := &SessionState{}
+	sessID, err := sessions.GetState(r, ctx.SessionKey, ctx.SessionStore, state)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error getting session state: %v", err), http.StatusUnauthorized)
 		return
@@ -39,7 +41,7 @@ func (ctx *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		//update bird in typie store
-		if err := ctx.TypieStore.Update(state.TypieBird.UserName, updates); err != nil {
+		if err := ctx.TypieStore.Update(state.TypieBird.ID, updates); err != nil {
 			http.Error(w, fmt.Sprintf("error updating user store: %v", err), http.StatusBadRequest)
 			return
 		}
