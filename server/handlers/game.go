@@ -3,8 +3,8 @@ package handlers
 import (
 	"time"
 
-	"github.com/ezhai24/challenges-ezhai24/servers/gateway/sessions"
-	"github.com/ezhai24/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/sessions"
 )
 
 //HandlerContext keeps track of database information

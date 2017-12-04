@@ -1,12 +1,12 @@
 package sessions
 
 import (
-	"crypto/rand"
 	"crypto/hmac"
-	"encoding/base64"
-	"fmt"
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"errors"
+	"fmt"
 )
 
 //InvalidSessionID represents an empty, invalid session ID
@@ -56,7 +56,6 @@ func NewSessionID(signingKey string) (SessionID, error) {
 	id = append(id, randomBytes...)
 	id = append(id, sig...)
 
-	
 	//the following return statement is just a placeholder
 	//remove it when implementing the function
 	return SessionID(base64.URLEncoding.EncodeToString(id)), nil
@@ -69,19 +68,18 @@ func ValidateID(id string, signingKey string) (SessionID, error) {
 	sessionID, err := base64.URLEncoding.DecodeString(id)
 	if err != nil {
 		return InvalidSessionID, ErrInvalidID
-	} 
+	}
 	h := hmac.New(sha256.New, []byte(signingKey))
 	_, err = h.Write(sessionID[:32])
 	if err != nil {
 		return InvalidSessionID, fmt.Errorf("error writing bytes: %v", err)
 	}
-	
+
 	sig1 := h.Sum(nil)
 	if string(sig1) == string(sessionID[32:]) {
 		return SessionID(id), nil
-	} else {
-		return InvalidSessionID, fmt.Errorf("length: %v", len(sessionID))
 	}
+	return InvalidSessionID, fmt.Errorf("length: %v", len(sessionID))
 }
 
 //String returns a string representation of the sessionID

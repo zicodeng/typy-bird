@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ezhai24/challenges-ezhai24/servers/gateway/sessions"
-	"github.com/ezhai24/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/sessions"
 )
 
 //TypieMeHandler handlers current birds

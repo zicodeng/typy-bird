@@ -57,10 +57,6 @@ func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 	}
 	rs.Client.Expire(string(key), 0)
 
-	//for extra-credit using the Pipeline feature of the redis
-	//package to do both the get and the reset of the expiry time
-	//in just one network round trip!
-
 	return nil
 }
 
