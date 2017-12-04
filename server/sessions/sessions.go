@@ -1,10 +1,10 @@
 package sessions
 
 import (
-	"strings"
-	"fmt"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 )
 
 const headerAuthorization = "Authorization"
@@ -26,11 +26,10 @@ func BeginSession(signingKey string, store Store, sessionState interface{}, w ht
 	sessionID, err := NewSessionID(signingKey)
 	if err != nil {
 		return sessionID, fmt.Errorf("invalid session id: %v", err)
-	} else {
-		store.Save(sessionID, sessionState)
-		w.Header().Add(headerAuthorization, schemeBearer + string(sessionID))
-		return sessionID, nil
 	}
+	store.Save(sessionID, sessionState)
+	w.Header().Add(headerAuthorization, schemeBearer+string(sessionID))
+	return sessionID, nil
 }
 
 //GetSessionID extracts and validates the SessionID from the request headers
@@ -45,53 +44,45 @@ func GetSessionID(r *http.Request, signingKey string) (SessionID, error) {
 			sessionID, err := ValidateID(header[1], signingKey)
 			if err != nil || header[0] != strings.TrimSpace(schemeBearer) {
 				return sessionID, fmt.Errorf("not a valid sessionID: %v", err)
-			} else {
-				return sessionID, nil
 			}
-		} else {
-			return InvalidSessionID, ErrNoSessionID
+			return sessionID, nil
 		}
-	} else {
-		value := r.Header.Get(headerAuthorization)
-		header := strings.Split(value, " ")
-		if len(header) == 2 {
-			sessionID, err := ValidateID(header[1], signingKey)
-			if err != nil || header[0] != strings.TrimSpace(schemeBearer) {
-				return InvalidSessionID, ErrInvalidScheme
-			} else {
-				return sessionID, nil
-			}
-		} else {
-			return InvalidSessionID, ErrInvalidID
-		}
+		return InvalidSessionID, ErrNoSessionID
 	}
+	value := r.Header.Get(headerAuthorization)
+	header := strings.Split(value, " ")
+	if len(header) == 2 {
+		sessionID, err := ValidateID(header[1], signingKey)
+		if err != nil || header[0] != strings.TrimSpace(schemeBearer) {
+			return InvalidSessionID, ErrInvalidScheme
+		}
+		return sessionID, nil
+	}
+	return InvalidSessionID, ErrInvalidID
 }
 
 //GetState extracts the SessionID from the request,
 //gets the associated state from the provided store into
 //the `sessionState` parameter, and returns the SessionID
 func GetState(r *http.Request, signingKey string, store Store, sessionState interface{}) (SessionID, error) {
-	sessionID, err := GetSessionID(r, signingKey) 
+	sessionID, err := GetSessionID(r, signingKey)
 	if err != nil {
 		return sessionID, fmt.Errorf("not a valid sessionID: %v", err)
-	} else {
-		err := store.Get(sessionID, sessionState)
-		if err != nil {
-			return sessionID, ErrStateNotFound
-		}
-		return sessionID, nil
 	}
+	if err := store.Get(sessionID, sessionState); err != nil {
+		return sessionID, ErrStateNotFound
+	}
+	return sessionID, nil
 }
 
 //EndSession extracts the SessionID from the request,
 //and deletes the associated data in the provided store, returning
 //the extracted SessionID.
 func EndSession(r *http.Request, signingKey string, store Store) (SessionID, error) {
-	sessionID, err := GetSessionID(r, signingKey) 
+	sessionID, err := GetSessionID(r, signingKey)
 	if err != nil {
 		return sessionID, fmt.Errorf("not a valid sessionID: %v", err)
-	} else {
-		store.Delete(sessionID)
-		return sessionID, nil
 	}
+	store.Delete(sessionID)
+	return sessionID, nil
 }
