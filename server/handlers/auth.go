@@ -20,14 +20,14 @@ func (ctx *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request
 	switch r.Method {
 	case "PATCH":
 		//decode new record from request body
-		record := &game.Record{}
-		if err := json.NewDecoder(r.Body).Decode(record); err != nil {
+		updates := &game.Updates{}
+		if err := json.NewDecoder(r.Body).Decode(updates); err != nil {
 			http.Error(w, fmt.Sprintf("error decoding JSON: %v", err), http.StatusBadRequest)
 			return
 		}
 
 		//update bird in state
-		if err := state.TypieBird.UpdateRecord(record); err != nil {
+		if err := state.TypieBird.UpdateRecord(updates); err != nil {
 			http.Error(w, fmt.Sprintf("error applying updates: %v", err), http.StatusBadRequest)
 			return
 		}
@@ -39,7 +39,7 @@ func (ctx *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		//update bird in typie store
-		if err := ctx.TypieStore.Update(state.TypieBird.UserName, record); err != nil {
+		if err := ctx.TypieStore.Update(state.TypieBird.UserName, updates); err != nil {
 			http.Error(w, fmt.Sprintf("error updating user store: %v", err), http.StatusBadRequest)
 			return
 		}
