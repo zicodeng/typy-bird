@@ -1,4 +1,4 @@
-package game
+package models
 
 import (
 	"errors"
@@ -56,7 +56,7 @@ func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
 func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(newTypie); err != nil {
-		return nil, fmt.Errorf("error inserting task: %v", err)
+		return nil, fmt.Errorf("error inserting typie bird: %v", err)
 	}
 	return newTypie, nil
 }
@@ -65,15 +65,15 @@ func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 func (s *MongoStore) InsertWords(word string) (string, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(word); err != nil {
-		return "", fmt.Errorf("error inserting task: %v", err)
+		return "", fmt.Errorf("error inserting word: %v", err)
 	}
 	return word, nil
 }
 
 //Delete deletes the typie bird with the given ID
-func (s *MongoStore) Delete(userID bson.ObjectId) error {
+func (s *MongoStore) Delete(typieBirdID bson.ObjectId) error {
 	col := s.session.DB(s.dbname).C(s.colname)
-	if err := col.RemoveId(userID); err != nil {
+	if err := col.RemoveId(typieBirdID); err != nil {
 		return fmt.Errorf("error removing user: %v", err)
 	}
 	return nil
