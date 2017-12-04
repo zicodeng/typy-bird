@@ -29,6 +29,16 @@ func NewMongoStore(sess *mgo.Session, dbName string, collectionName string) *Mon
 	}
 }
 
+func (s *MongoStore) GetTopScores() ([]*TypieBird, error)  {
+	topScores := make([]*TypieBird, 10)
+	col := s.session.DB(s.dbname).C(s.colname)
+	err := col.Find(nil).Limit(10).Sort("Record").All(topScores)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving top 10 typie birds")
+	}
+	return topScores, nil
+}
+
 //GetByID returns the User with the given ID
 func (s *MongoStore) GetByID(id bson.ObjectId) (*TypieBird, error) {
 	typieBird := &TypieBird{}
@@ -68,6 +78,19 @@ func (s *MongoStore) InsertWords(word string) (string, error) {
 		return "", fmt.Errorf("error inserting word: %v", err)
 	}
 	return word, nil
+}
+
+//Update applies UserUpdates to the given user ID
+func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
+	typie := &TypieBird{}
+	change := mgo.Change{
+		Update: bson.M{"$set": updates},
+	}
+	col := s.session.DB(s.dbname).C(s.colname)
+	if _, err := col.FindId(typieBirdID).Apply(change, typie); err != nil {
+		return fmt.Errorf("error updating user: %v", err)
+	}
+	return nil
 }
 
 //Delete deletes the typie bird with the given ID

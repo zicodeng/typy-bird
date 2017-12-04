@@ -9,8 +9,10 @@ import (
 
 
 func TestMongoStore(t *testing.T) {
+
 	newTypie1 := &TypieBird {
 		UserName     : "eric",
+		
 	}
 
 	// newTypie2 := &TypieBird{
