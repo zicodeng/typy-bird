@@ -8,7 +8,7 @@ var path = require('path');
 module.exports = {
 	entry: {
 		index: './src/index.tsx',
-		app: './src/app.ts'
+		app: './src/app.tsx'
 	},
 
 	output: {
@@ -114,12 +114,12 @@ module.exports = {
 		}),
 		new HtmlWebpackPlugin({
 			filename: 'index.html',
-			template: './src/templates/index.ejs',
+			template: './src/templates/index.html',
 			chunks: ['commons', 'index']
 		}),
 		new HtmlWebpackPlugin({
 			filename: 'app.html',
-			template: './src/templates/app.ejs',
+			template: './src/templates/app.html',
 			chunks: ['commons', 'app']
 		}),
 		new ExtractTextPlugin({
