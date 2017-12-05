@@ -6,6 +6,7 @@ export const AnimUpdate = (state: GameState): void => {
 
 const typiesAnim = (state: GameState): void => {
 	state.entities.typies.forEach(typie => {
+		// Animate the Typie's state if it is "ready".
 		typie.currentState.anim(state);
 	});
 };

@@ -24,3 +24,11 @@ canvas {
 #bg-canvas {
 	z-index: 0;
 }
+
+.btn {
+	position: fixed;
+	z-index: 99;
+	&--ready {
+		background-color: $green;
+	}
+}

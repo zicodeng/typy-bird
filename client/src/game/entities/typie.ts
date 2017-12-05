@@ -38,7 +38,7 @@ class Typie implements Entity {
 		this.initTargetX = targetX;
 		this.initTargetY = targetY;
 
-		this.velocityX = 3;
+		this.velocityX = 0;
 		this.velocityY = 0;
 
 		this.spriteAnims = {
