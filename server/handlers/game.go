@@ -32,10 +32,11 @@ type SessionState struct {
 	TypieBird    *models.TypieBird
 }
 
-//TypieHandler handles the POST,GET, and PATCH methods for the /typie route
+//TypieHandler handles methods for the /typie route
 func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
+		//decode new typie bird from request body
 		newTypie := &models.NewTypieBird{}
 		err := json.NewDecoder(r.Body).Decode(newTypie)
 		if err != nil {
@@ -43,14 +44,23 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		//check username does not exist in mongostore
+		if _, err := c.TypieStore.GetByUserName(newTypie.UserName); err == nil {
+			http.Error(w, fmt.Sprintf("a typie bird with this username already exists: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//convert new typie bird to typie bird
 		typie := newTypie.ToTypie()
 
+		//insert typie bird into the mongo store
 		insertedTypie, err := c.TypieStore.InsertTypieBird(typie)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error inserting typie: %v", err), http.StatusInternalServerError)
 			return
 		}
 
+		//respond to client
 		w.Header().Add("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(insertedTypie)
 		if err != nil {
@@ -120,6 +130,59 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(state.TypieBird); err != nil {
 			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//SessionsHandler handles the methods for the /sessions route
+func (c *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		//decode credentials from request body
+		credentials := &models.Credentials{}
+		if err := json.NewDecoder(r.Body).Decode(credentials); err != nil {
+			http.Error(w, fmt.Sprintf("error decoding JSON: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//check username exists in store (authenticate bird)
+		bird, err := c.TypieStore.GetByUserName(credentials.UserName)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("a typie bird with this username does not exist: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//begin a new session
+		state := &SessionState{
+			SessionStart: time.Now(),
+			TypieBird:    bird,
+		}
+		if _, err := sessions.BeginSession(c.SessionKey, c.SessionStore, state, w); err != nil {
+			http.Error(w, fmt.Sprintf("error starting session: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		//respond to client with the session bird
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(bird); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding typie bird to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
+	case "GET":
+		//get all current running sessions
+		sessions, err := c.SessionStore.GetAll()
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error retrieving current sessions: %v", err), http.StatusInternalServerError)
+		}
+
+		//respond to client
+		r.Header.Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(sessions); err != nil {
+			http.Error(w, "error encoding leaderboard: %v", http.StatusInternalServerError)
 			return
 		}
 	default:
