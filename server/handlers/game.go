@@ -116,7 +116,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		// update bird in session store
+		//update bird in session store
 		if err := c.SessionStore.Save(sessID, state); err != nil {
 			http.Error(w, fmt.Sprintf("error saving to session store: %v", err), http.StatusBadRequest)
 			return

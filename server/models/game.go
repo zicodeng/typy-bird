@@ -19,8 +19,7 @@ type TypieBird struct {
 
 //Updates represents updates that can be made to a typie bird
 type Updates struct {
-	Record   float32 `json:"record"`
-	Position int     `json:"position"`
+	Record float32 `json:"record"`
 }
 
 //ToTypie takes a NewTypie and turns it into a Typie
@@ -35,9 +34,6 @@ func (nt *NewTypieBird) ToTypie() *TypieBird {
 
 //Update updates a typie bird's position and score
 func (bird *TypieBird) Update(updates *Updates) error {
-	if updates.Record < bird.Record {
-		bird.Record = updates.Record
-	}
-	bird.Position = updates.Position
+	bird.Record = updates.Record
 	return nil
 }
