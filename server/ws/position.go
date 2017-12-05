@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,6 +23,9 @@ func NewPositionHandler(notifier *Notifier, context *handlers.HandlerContext) *P
 //ServeHTTP handles HTTP requests for the UpdateHandler
 func (ph *PositionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	state := &handlers.SessionState{}
-	sessions.GetState(r, ph.context.SessionKey, ph.context.SessionStore, state)
+	if _, err := sessions.GetState(r, ph.context.SessionKey, ph.context.SessionStore, state); err != nil {
+		http.Error(w, fmt.Sprintf("error getting state: %v", err), http.StatusInternalServerError)
+		return
+	}
 	ph.notifier.Notify([]byte(strconv.Itoa(state.TypieBird.Position)))
 }
