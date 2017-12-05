@@ -60,7 +60,7 @@ func main() {
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
-	mux.Handle("/update", ws.NewUpdateHandler(notifier))
+	mux.Handle("/position", ws.NewPositionHandler(notifier, context))
 
 	log.Printf("server is listening at http://%s...", addr)
 	log.Fatal(http.ListenAndServe(addr, mux))
