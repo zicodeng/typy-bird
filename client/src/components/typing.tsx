@@ -9,18 +9,32 @@ class Typing extends React.Component<any, any> {
 
 		this.state = {
 			dictionary: ['Hello', 'World', 'How', 'Are', 'You'],
-			currentWordIndex: 0
+			currentWordIndex: 0,
+			input: null
 		};
 	}
 
 	public render(): JSX.Element {
-		return (
-			<div className="typing">
-				<p>{this.state.dictionary[this.state.currentWordIndex]}</p>
-				<input type="text" ref="word" autoFocus onChange={e => this.handleChangeInput()} />
-			</div>
-		);
+		return <div className="typing">{this.renderInputElem()}</div>;
 	}
+
+	private renderInputElem = (): JSX.Element => {
+		if (this.props.playerState === 'ready') {
+			return (
+				<div>
+					<p>{this.state.dictionary[this.state.currentWordIndex]}</p>
+					<input
+						id="player-input"
+						type="text"
+						ref="word"
+						autoFocus
+						onChange={e => this.handleChangeInput()}
+					/>
+				</div>
+			);
+		}
+		return <h3>Please Get Ready First</h3>;
+	};
 
 	private handleChangeInput = (): void => {
 		let currentWordIndex = this.state.currentWordIndex;
