@@ -60,19 +60,20 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusCreated)
 	case "GET":
-		r.Header.Add("Content-Type", "application/json")
-
 		leaderboard, err := c.TypieStore.GetTopScores()
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error retrieving leaderboard: %v", err), http.StatusInternalServerError)
+			return
 		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
 
 		err = json.NewEncoder(w).Encode(leaderboard)
 		if err != nil {
 			http.Error(w, "error encoding leaderboard: %v", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusAccepted)
 	case "PATCH":
 		//get session state associated with current typie bird
 		state := &SessionState{}

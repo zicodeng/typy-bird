@@ -75,8 +75,8 @@ func (s *MongoStore) InsertWords(word string) (string, error) {
 func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
 	typie := &TypieBird{}
 	change := mgo.Change{
-		Update: bson.M{"$set": updates},
-    ReturnNew: true,
+		Update:    bson.M{"$set": updates},
+		ReturnNew: true,
 	}
 	col := s.session.DB(s.dbname).C(s.colname)
 	if _, err := col.FindId(typieBirdID).Apply(change, typie); err != nil {
@@ -94,12 +94,12 @@ func (s *MongoStore) Delete(typieBirdID bson.ObjectId) error {
 	return nil
 }
 
-func (s *MongoStore) GetTopScores() ([]*TypieBird, error)  {
+func (s *MongoStore) GetTopScores() ([]*TypieBird, error) {
 	topScores := make([]*TypieBird, 10)
 	col := s.session.DB(s.dbname).C(s.colname)
-	err := col.Find(nil).Limit(10).Sort("Record").All(topScores)
+	err := col.Find(nil).Limit(10).Sort("Record").Iter().All(&topScores)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving top 10 typie birds")
+		return nil, fmt.Errorf("error retrieving top 10 typie birds: %v", err)
 	}
 	return topScores, nil
 }
