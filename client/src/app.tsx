@@ -20,9 +20,7 @@ class App extends React.Component<any, any> {
 			<div>
 				<h1 className="countdown" />
 				<h1>Typie Bird</h1>
-				<button className="btn btn--ready" onClick={e => this.handleClickReady()}>
-					READY
-				</button>
+				{this.renderButtons()}
 				<Typing playerState={this.state.playerState} />
 				<canvas id="bg-canvas" />
 				<canvas id="fg-canvas" />
@@ -42,10 +40,31 @@ class App extends React.Component<any, any> {
 		}
 	}
 
+	private renderButtons = (): JSX.Element => {
+		const playerState = this.state.playerState;
+		if (playerState === 'waiting') {
+			return (
+				<button className="btn btn--ready" onClick={e => this.handleClickReady()}>
+					READY
+				</button>
+			);
+		}
+		return (
+			<button className="btn btn--cancel" onClick={e => this.handleClickCancel()}>
+				CANCEL
+			</button>
+		);
+	};
+
 	private handleClickReady = (): void => {
-		console.log('ready');
 		this.setState({
 			playerState: 'ready'
+		});
+	};
+
+	private handleClickCancel = (): void => {
+		this.setState({
+			playerState: 'waiting'
 		});
 	};
 
