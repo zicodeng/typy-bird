@@ -47,8 +47,11 @@ func main() {
 	}
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
 
+	//Initialize game room struct
+	gameRoom := &models.GameRoom{Available: true}
+
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore)
+	context := handlers.NewHandlerContext(gameRoom, typieStore)
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 

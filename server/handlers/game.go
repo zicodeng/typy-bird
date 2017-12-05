@@ -12,17 +12,15 @@ import (
 
 //HandlerContext keeps track of database information
 type HandlerContext struct {
-	SessionKey   string
-	SessionStore sessions.Store
-	TypieStore   *models.MongoStore
+	GameRoom   *models.GameRoom
+	TypieStore *models.MongoStore
 }
 
 //NewHandlerContext creates a new instance of a context struct to be used by a handler
-func NewHandlerContext(key string, sessionStore sessions.Store, typieStore *models.MongoStore) *HandlerContext {
+func NewHandlerContext(gameRoom *models.GameRoom, typieStore *models.MongoStore) *HandlerContext {
 	return &HandlerContext{
-		SessionKey:   key,
-		SessionStore: sessionStore,
-		TypieStore:   typieStore,
+		GameRoom:   gameRoom,
+		TypieStore: typieStore,
 	}
 }
 

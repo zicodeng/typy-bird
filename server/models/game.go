@@ -4,6 +4,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//GameRoom represents the room of players
+type GameRoom struct {
+	Players   []*TypieBird
+	Available bool
+}
+
 //NewTypieBird represents a creating a new player
 type NewTypieBird struct {
 	UserName string `json:"userName"`
