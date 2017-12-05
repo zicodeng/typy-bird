@@ -190,3 +190,21 @@ func (c *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 }
+
+//SessionsMineHandler handles the methods for the /sessions/mine route
+func (c *HandlerContext) SessionsMineHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "DELETE":
+		//end session
+		if _, err := sessions.EndSession(r, c.SessionKey, c.SessionStore); err != nil {
+			http.Error(w, fmt.Sprintf("error ending session: %v", err), http.StatusUnauthorized)
+			return
+		}
+
+		//respond to client
+		w.Write([]byte("game ended for player\n"))
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
