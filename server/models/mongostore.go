@@ -71,28 +71,15 @@ func (s *MongoStore) InsertWords(word string) (string, error) {
 	return word, nil
 }
 
-//UpdateRecord applies UserUpdates to the given user ID
-func (s *MongoStore) UpdateRecord(typieBirdID bson.ObjectId, ru *RecordUpdates) {
-	change := mgo.Change{
-		Update:    bson.M{"$set": ru},
-		ReturnNew: true,
-	}
-	s.Update(typieBirdID, change)
-}
-
-//UpdatePosition applies UserUpdates to the given user ID
-func (s *MongoStore) UpdatePosition(typieBirdID bson.ObjectId, pu *PositionUpdates) {
-	change := mgo.Change{
-		Update:    bson.M{"$set": pu},
-		ReturnNew: true,
-	}
-	s.Update(typieBirdID, change)
-}
-
 //Update is a helper function for UpdateRecord and UpdatePosition
-func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates mgo.Change) error {
+func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
+	typie := &TypieBird{}
+	change := mgo.Change{
+		Update:    bson.M{"$set": updates},
+		ReturnNew: true,
+	}
 	col := s.session.DB(s.dbname).C(s.colname)
-	if _, err := col.FindId(typieBirdID).Apply(updates, &TypieBird{}); err != nil {
+	if _, err := col.FindId(typieBirdID).Apply(change, typie); err != nil {
 		return fmt.Errorf("error updating typie bird: %v", err)
 	}
 	return nil

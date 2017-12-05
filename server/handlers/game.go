@@ -73,6 +73,15 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusAccepted)
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//TypieMeHandler handles the methods for the /typie/me route
+func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
 	case "PATCH":
 		//get session state associated with current typie bird
 		state := &SessionState{}
@@ -90,7 +99,7 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//update bird in state
-		if err := state.TypieBird.UpdateRecord(updates); err != nil {
+		if err := state.TypieBird.Update(updates); err != nil {
 			http.Error(w, fmt.Sprintf("error applying updates: %v", err), http.StatusBadRequest)
 			return
 		}
