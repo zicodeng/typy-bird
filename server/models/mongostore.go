@@ -30,16 +30,6 @@ func NewMongoStore(sess *mgo.Session, dbName string, collectionName string) *Mon
 	}
 }
 
-func (s *MongoStore) GetTopScores() ([]*TypieBird, error)  {
-	topScores := make([]*TypieBird, 10)
-	col := s.session.DB(s.dbname).C(s.colname)
-	err := col.Find(nil).Limit(10).Sort("Record").All(topScores)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving top 10 typie birds")
-	}
-	return topScores, nil
-}
-
 //GetByID returns the User with the given ID
 func (s *MongoStore) GetByID(id bson.ObjectId) (*TypieBird, error) {
 	typieBird := &TypieBird{}
@@ -65,6 +55,7 @@ func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
 //InsertTypieBird inserts a new typie bird into the mongo store and returns the typie bird
 func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
+	newTypie.ID = bson.NewObjectId()
 	if err := col.Insert(newTypie); err != nil {
 		return nil, fmt.Errorf("error inserting typie bird: %v", err)
 	}
@@ -101,4 +92,14 @@ func (s *MongoStore) Delete(typieBirdID bson.ObjectId) error {
 		return fmt.Errorf("error removing user: %v", err)
 	}
 	return nil
+}
+
+func (s *MongoStore) GetTopScores() ([]*TypieBird, error)  {
+	topScores := make([]*TypieBird, 10)
+	col := s.session.DB(s.dbname).C(s.colname)
+	err := col.Find(nil).Limit(10).Sort("Record").All(topScores)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving top 10 typie birds")
+	}
+	return topScores, nil
 }
