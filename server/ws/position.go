@@ -1,8 +1,9 @@
 package ws
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/info344-a17/typy-bird/server/handlers"
 )
@@ -20,10 +21,13 @@ func NewPositionHandler(notifier *Notifier, context *handlers.HandlerContext) *P
 
 //ServeHTTP handles HTTP requests for the UpdateHandler
 func (ph *PositionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// state := &handlers.SessionState{}
-	// if _, err := sessions.GetState(r, ph.context.SessionKey, ph.context.SessionStore, state); err != nil {
-	// 	http.Error(w, fmt.Sprintf("error getting state: %v", err), http.StatusInternalServerError)
-	// 	return
-	// }
-	ph.notifier.Notify([]byte(strconv.Itoa(state.TypieBird.Position)))
+	//marshall GameRoom struct into json
+	room, err := json.Marshal(ph.context.GameRoom)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	//respond to client
+	ph.notifier.Notify(room)
 }
