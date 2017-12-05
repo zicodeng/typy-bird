@@ -46,10 +46,9 @@ func main() {
 		log.Fatalf("error dialing db: %v", err)
 	}
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
-	wordStore := models.NewMongoStore(mongoSess, "GameDB", "WordCollection")
 
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore, wordStore)
+	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore)
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 

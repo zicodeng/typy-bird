@@ -15,16 +15,14 @@ type HandlerContext struct {
 	SessionKey   string
 	SessionStore sessions.Store
 	TypieStore   *models.MongoStore
-	WordStore    *models.MongoStore
 }
 
 //NewHandlerContext creates a new instance of a context struct to be used by a handler
-func NewHandlerContext(key string, sessionStore sessions.Store, typieStore, wordStore *models.MongoStore) *HandlerContext {
+func NewHandlerContext(key string, sessionStore sessions.Store, typieStore *models.MongoStore) *HandlerContext {
 	return &HandlerContext{
 		SessionKey:   key,
 		SessionStore: sessionStore,
 		TypieStore:   typieStore,
-		WordStore:    wordStore,
 	}
 }
 
