@@ -71,16 +71,29 @@ func (s *MongoStore) InsertWords(word string) (string, error) {
 	return word, nil
 }
 
-//Update applies UserUpdates to the given user ID
-func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
-	typie := &TypieBird{}
+//UpdateRecord applies UserUpdates to the given user ID
+func (s *MongoStore) UpdateRecord(typieBirdID bson.ObjectId, ru *RecordUpdates) {
 	change := mgo.Change{
-		Update: bson.M{"$set": updates},
-    ReturnNew: true,
+		Update:    bson.M{"$set": ru},
+		ReturnNew: true,
 	}
+	s.Update(typieBirdID, change)
+}
+
+//UpdatePosition applies UserUpdates to the given user ID
+func (s *MongoStore) UpdatePosition(typieBirdID bson.ObjectId, pu *PositionUpdates) {
+	change := mgo.Change{
+		Update:    bson.M{"$set": pu},
+		ReturnNew: true,
+	}
+	s.Update(typieBirdID, change)
+}
+
+//Update is a helper function for UpdateRecord and UpdatePosition
+func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates mgo.Change) error {
 	col := s.session.DB(s.dbname).C(s.colname)
-	if _, err := col.FindId(typieBirdID).Apply(change, typie); err != nil {
-		return fmt.Errorf("error updating user: %v", err)
+	if _, err := col.FindId(typieBirdID).Apply(updates, &TypieBird{}); err != nil {
+		return fmt.Errorf("error updating typie bird: %v", err)
 	}
 	return nil
 }
@@ -94,7 +107,8 @@ func (s *MongoStore) Delete(typieBirdID bson.ObjectId) error {
 	return nil
 }
 
-func (s *MongoStore) GetTopScores() ([]*TypieBird, error)  {
+//GetTopScores retrieves the 10 typie bird's with the highest score
+func (s *MongoStore) GetTopScores() ([]*TypieBird, error) {
 	topScores := make([]*TypieBird, 10)
 	col := s.session.DB(s.dbname).C(s.colname)
 	err := col.Find(nil).Limit(10).Sort("Record").All(topScores)

@@ -9,30 +9,44 @@ type NewTypieBird struct {
 	UserName string `json:"userName"`
 }
 
-//ToTypie takes a NewTypie and turns it into a Typie
-func (nt *NewTypieBird) ToTypie() *TypieBird {
-	typie := &TypieBird{
-		UserName: nt.UserName,
-	}
-	return typie
-}
-
 //TypieBird represents a player
 type TypieBird struct {
 	ID       bson.ObjectId `json:"id" bson:"_id"`
 	UserName string        `json:"userName"`
-	Record   float32
+	Record   float32       `json:"record"`
+	Position int           `json:"position"`
 }
 
-//Updates represents allowed updates to a user profile
-type Updates struct {
+//RecordUpdates represents updates to a bird's score
+type RecordUpdates struct {
 	Record float32 `json:"record"`
 }
 
-//UpdateRecord updates a typie bird's score to the highest score
-func (bird *TypieBird) UpdateRecord(updates *Updates) error {
-	if updates.Record < bird.Record {
-		bird.Record = updates.Record
+//PositionUpdates represents updates to a bird's position
+type PositionUpdates struct {
+	Position int `json:"position"`
+}
+
+//ToTypie takes a NewTypie and turns it into a Typie
+func (nt *NewTypieBird) ToTypie() *TypieBird {
+	return &TypieBird{
+		ID:       bson.NewObjectId(),
+		UserName: nt.UserName,
+		Record:   0,
+		Position: 0,
 	}
+}
+
+//UpdateRecord updates a typie bird's position and score
+func (bird *TypieBird) UpdateRecord(ru *RecordUpdates) error {
+	if ru.Record < bird.Record {
+		bird.Record = ru.Record
+	}
+	return nil
+}
+
+//UpdatePosition updates a typie bird's position and score
+func (bird *TypieBird) UpdatePosition(pu *PositionUpdates) error {
+	bird.Position = pu.Position
 	return nil
 }
