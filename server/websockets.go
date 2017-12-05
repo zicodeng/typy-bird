@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const maxPlayers = 4
+
 //WebSocketsHandler is a handler for WebSocket upgrade requests
 type WebSocketsHandler struct {
 	notifier *Notifier
@@ -34,7 +36,11 @@ func (wsh *WebSocketsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, fmt.Sprintf("error upgrading websocker: %v", err), http.StatusInternalServerError)
 		return
 	}
-	wsh.notifier.AddClient(conn)
+	if len(wsh.notifier.clients) != maxPlayers {
+		go wsh.notifier.AddClient(conn)
+	} else {
+		http.Error(w, "game room is full", http.StatusConflict)
+	}
 }
 
 //Notifier is an object that handles WebSocket notifications
@@ -59,11 +65,10 @@ func NewNotifier() *Notifier {
 func (n *Notifier) AddClient(client *websocket.Conn) {
 	n.mx.Lock()
 	n.clients = append(n.clients, client)
-	fmt.Println(n.clients)
 	n.mx.Unlock()
 	for {
 		if _, _, err := client.NextReader(); err != nil {
-			client.Close()
+			n.removeClient(client)
 			break
 		}
 	}
@@ -83,9 +88,21 @@ func (n *Notifier) start() {
 		for _, client := range n.clients {
 			err := client.WriteMessage(websocket.TextMessage, event)
 			if err != nil {
+				n.removeClient(client)
 				fmt.Errorf("error writing message: %v", err)
 				return
 			}
+		}
+	}
+}
+
+func (n *Notifier) removeClient(client *websocket.Conn) {
+	client.Close()
+	for i, c := range n.clients {
+		if client == c {
+			n.mx.Lock()
+			n.clients = append(n.clients[:i], n.clients[i+1:]...)
+			n.mx.Unlock()
 		}
 	}
 }

@@ -20,15 +20,15 @@ type SessionState struct {
 }
 
 func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+
+	switch r.Method {
+	case "POST":
 		newTypie := &models.TypieBird
 		err := json.NewDecoder(r.Body).Decode(newTypie)
-		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error decoding typie json: %v", err), http.StatusInternalServerError)
 			return
 		}
-		newTypie.ID = bson.NewObjectId()
 
 		typie, err := c.TypieStore.InsertTypieBird(newTypie)
 		if err != nil {
@@ -43,14 +43,7 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-	} else {
-		http.Error(w, "method must POST", http.StatusMethodNotAllowed)
-		return
-	}
-}
-
-func (c *HandlerContext) LeaderboardHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
+	case "GET":
 		r.Header.Add("Content-Type", "application/json")
 
 		leaderboard, err := c.TypieStore.GetAll()
@@ -64,8 +57,8 @@ func (c *HandlerContext) LeaderboardHandler(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		w.WriteHeader(http.StatusAccepted)
-	} else {
-		http.Error(w, "method must be GET", http.StatusMethodNotAllowed)
+	default:
+		http.Error(w, "method must POST or GET", http.StatusMethodNotAllowed)
 		return
 	}
 }

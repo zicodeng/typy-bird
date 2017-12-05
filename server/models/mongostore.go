@@ -52,17 +52,17 @@ func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
 	return typieBird, nil
 }
 
-//Inserts a new typie bird into the mongo store
-//and returns the typie bird
+//InsertTypieBird inserts a new typie bird into the mongo store and returns the typie bird
 func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
+	newTypie.ID = bson.NewObjectId()
 	if err := col.Insert(newTypie); err != nil {
 		return nil, fmt.Errorf("error inserting task: %v", err)
 	}
 	return newTypie, nil
 }
 
-//inserts a new word from a dictionary into the mongo store
+//InsertWords inserts a new word from a dictionary into the mongo store
 func (s *MongoStore) InsertWords(word string) (string, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
 	if err := col.Insert(word); err != nil {
