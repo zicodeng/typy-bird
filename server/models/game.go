@@ -4,11 +4,24 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//NewTypieBird represents a creating a new player
+type NewTypieBird struct {
+	UserName string `json:"userName"`
+}
+
+//ToTypie takes a NewTypie and turns it into a Typie
+func (nt *NewTypieBird) ToTypie() *TypieBird {
+	typie := &TypieBird{
+		UserName: nt.UserName,
+	}
+	return typie
+}
+
 //TypieBird represents a player
 type TypieBird struct {
-	ID        bson.ObjectId `json:"id" bson:"_id"`
-	UserName  string        `json:"userName"`
-	Record float32
+	ID       bson.ObjectId `json:"id" bson:"_id"`
+	UserName string        `json:"userName"`
+	Record   float32
 }
 
 //Updates represents allowed updates to a user profile

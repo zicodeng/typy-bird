@@ -1,29 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/go-redis/redis"
+	"github.com/info344-a17/typy-bird/server/handlers"
+	"github.com/info344-a17/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/sessions"
+	"github.com/info344-a17/typy-bird/server/ws"
+	mgo "gopkg.in/mgo.v2"
 )
-
-//NotificationsHandler handles requests for the /notifications resource
-type NotificationsHandler struct {
-	notifier *Notifier
-}
-
-//NewNotificationsHandler constructs a new NotificationsHandler
-func NewNotificationsHandler(notifier *Notifier) *NotificationsHandler {
-	return &NotificationsHandler{notifier}
-}
-
-//ServeHTTP handles HTTP requests for the NotificationsHandler
-func (nh *NotificationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	msg := fmt.Sprintf("Notification pushed from the server at %s", time.Now().Format("15:04:05"))
-	nh.notifier.Notify([]byte(msg))
-}
 
 func main() {
 	addr := os.Getenv("ADDR")
@@ -31,14 +20,45 @@ func main() {
 		addr = ":80"
 	}
 
-	//read tls key/cert
-	//connect to mongodb
+	//Session Initialization
+	sessionKey := os.Getenv("SESSIONKEY")
+	if len(sessionKey) == 0 {
+		log.Fatal("the SESSIONKEY was not set")
+	}
+	redisAddr := os.Getenv("REDISADDR")
+	if len(redisAddr) == 0 {
+		log.Fatal("the REDISADDR was not set")
+	}
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: "",
+		DB:       0,
+	})
+	redisStore := sessions.NewRedisStore(redisClient, time.Minute*15)
 
-	notifier := NewNotifier()
+	//MongoDB Initialization
+	dbAddr := os.Getenv("DBADDR")
+	if len(dbAddr) == 0 {
+		log.Fatal("the DBADDR was not set")
+	}
+	mongoSess, err := mgo.Dial(dbAddr)
+	if err != nil {
+		log.Fatalf("error dialing db: %v", err)
+	}
+	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
+	wordStore := models.NewMongoStore(mongoSess, "GameDB", "WordCollection")
 
+	//Initialize handler stuff
+	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore, wordStore)
+	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
-	mux.Handle("/ws", NewWebSocketsHandler(notifier))
-	mux.Handle("/notifications", NewNotificationsHandler(notifier))
+
+	//POST,GET,PATCH for typies
+	mux.HandleFunc("/typie", context.TypieHandler)
+	//upgrading to websockets
+	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
+	//sending postions to players
+	mux.Handle("/update", ws.NewUpdateHandler(notifier))
 
 	log.Printf("server is listening at http://%s...", addr)
 	log.Fatal(http.ListenAndServe(addr, mux))
