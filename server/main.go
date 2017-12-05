@@ -58,7 +58,6 @@ func main() {
 	//POST,GET,PATCH,DELETE for typies
 	mux.HandleFunc("/typie", context.TypieHandler)
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
-	mux.HandleFunc("/sessions/mine", context.SessionsMineHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
