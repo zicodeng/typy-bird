@@ -172,19 +172,6 @@ func (c *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Request)
 			http.Error(w, fmt.Sprintf("error encoding typie bird to JSON: %v", err), http.StatusInternalServerError)
 			return
 		}
-	case "GET":
-		//get all current running sessions
-		sessions, err := c.SessionStore.GetAll()
-		if err != nil {
-			http.Error(w, fmt.Sprintf("error retrieving current sessions: %v", err), http.StatusInternalServerError)
-		}
-
-		//respond to client
-		r.Header.Add("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(sessions); err != nil {
-			http.Error(w, "error encoding leaderboard: %v", http.StatusInternalServerError)
-			return
-		}
 	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return

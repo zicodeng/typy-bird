@@ -60,16 +60,6 @@ func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 	return nil
 }
 
-//GetAll retrieves all of the currently running sessions
-func (rs *RedisStore) GetAll(sessionState interface{}) ([]string, error) {
-	var cursor uint64
-	keys, cursor, err := rs.Client.Scan(cursor, "", 10).Result()
-	if err != nil {
-		return nil, fmt.Errorf("could not get session ids: %v", err)
-	}
-	return keys, nil
-}
-
 //Delete deletes all state data associated with the SessionID from the store.
 func (rs *RedisStore) Delete(sid SessionID) error {
 	key := sid.getRedisKey()
