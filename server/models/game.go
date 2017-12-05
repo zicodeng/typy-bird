@@ -17,11 +17,6 @@ type TypieBird struct {
 	Position int           `json:"position"`
 }
 
-//Credentials represents typie bird credentials required to join a game
-type Credentials struct {
-	UserName string `json:"userName"`
-}
-
 //Updates represents updates that can be made to a typie bird
 type Updates struct {
 	Record   float32 `json:"record"`
