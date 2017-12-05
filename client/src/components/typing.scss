@@ -1,0 +1,9 @@
+@import 'compass';
+
+.typing {
+	position: fixed;
+	z-index: 99;
+	text-align: center;
+	left: 50%;
+	@include transform(translateX(-50%));
+}
