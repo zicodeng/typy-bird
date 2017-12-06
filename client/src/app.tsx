@@ -44,18 +44,6 @@ class App extends React.Component<any, any> {
 		this.fetchPlayer();
 	}
 
-	public componentDidMount() {
-		// Fetch game state and store it locally.
-		const websocket = this.establishWebsocket();
-		websocket.addEventListener('message', event => {
-			const gameRoom = JSON.parse(event.data);
-			this.setState({
-				gameRoom: gameRoom
-			});
-		});
-		Game.Init(websocket);
-	}
-
 	public componentDidUpdate() {
 		const counter = this.state.counter;
 		// Start the game when the counterVal is 0,
@@ -89,7 +77,18 @@ class App extends React.Component<any, any> {
 		axios
 			.get(url)
 			.then(res => {
-				console.log(res);
+				// Fetch game state and store it locally.
+				const websocket = this.establishWebsocket();
+				websocket.addEventListener('message', event => {
+					const gameRoom = JSON.parse(event.data);
+					this.setState({
+						gameRoom: gameRoom
+					});
+				});
+				this.setState({
+					gameRoom: res.data
+				});
+				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
 				console.log(error);
@@ -169,7 +168,18 @@ class App extends React.Component<any, any> {
 	};
 
 	private checkPlayersState = (): boolean => {
-		return true;
+		let result = true;
+		const gameRoom = this.state.gameRoom;
+		if (!gameRoom || !gameRoom.Players) {
+			return result;
+		}
+		gameRoom.Players.forEach(player => {
+			if (!player.isReady) {
+				result = false;
+				return;
+			}
+		});
+		return result;
 	};
 }
 

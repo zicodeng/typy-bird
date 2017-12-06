@@ -23,8 +23,13 @@ export interface GameState {
 	entities: any;
 }
 
+interface GameRoom {
+	Available: boolean;
+	Players: any;
+}
+
 // Initialize the game.
-export const Init = (websocket: WebSocket): void => {
+export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	const bgCanvas = <HTMLCanvasElement>document.getElementById('bg-canvas');
 	const fgCanvas = <HTMLCanvasElement>document.getElementById('fg-canvas');
 
@@ -73,14 +78,18 @@ export const Init = (websocket: WebSocket): void => {
 	state.entities.typies = [];
 	state.entities.hearts = [];
 
+	// Load players in current game room first.
+	console.log('init', initGameRoom);
+	initGameRoom.Players.forEach((player, i) => {
+		renderTypie(state, i);
+	});
+
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
 		const gameRoom = JSON.parse(event.data);
-		console.log(gameRoom);
-
-		// state.entities.typies.push(new Typie(state.spritesheet, 50, posY));
-		// state.entities.hearts.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
+		// If this data we received is related to creating a new Typie.
+		renderTypie(state, gameRoom.Players.length);
 	});
 
 	EntitiesInit(state);
@@ -109,4 +118,25 @@ const update = (state: GameState): void => {
 
 const render = (state: GameState): void => {
 	RenderUpdate(state);
+};
+
+const renderTypie = (state: GameState, i: number): void => {
+	const maxPlayer = 4;
+	const canvasWidth = window.innerWidth;
+	const canvasHeight = window.innerHeight;
+
+	state.entities.typies.push(
+		new Typie(
+			state.spritesheet,
+			50,
+			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
+		)
+	);
+	state.entities.hearts.push(
+		new Heart(
+			state.spritesheet,
+			canvasWidth - 100,
+			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
+		)
+	);
 };
