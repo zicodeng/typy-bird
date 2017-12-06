@@ -18,11 +18,16 @@ class Index extends React.Component<any, any> {
 		return (
 			<div>
 				<h1>Hello, New Typies</h1>
-				{this.renderInput()}
+				<input type="text" ref="username" id="username" />
 				<button onClick={e => this.postTypie()}>PLAY</button>
 				{this.state.available ? <h3>Gameroom Open!</h3> : null}
 				<table style={{ width: 100 }}>
-					<thead>{this.renderTableHeading()}</thead>
+					<thead>
+					<tr>
+						<th>Username</th>
+						<th>Time</th>
+					</tr>
+					</thead>
 					<tbody>
 						{this.state.typies.forEach(element => {
 							this.renderTableData(element);
@@ -35,20 +40,19 @@ class Index extends React.Component<any, any> {
 
 	public componentWillMount() {
 		//establish websocket collection
-		const host = 'localhost:3000';
+		let host = this.getCurrentHost();
 
 		const websocket = new WebSocket('ws://' + host + '/ws');
 		websocket.addEventListener('error', function(err) {
 			window.alert(err);
 		});
-		websocket.addEventListener('message', function(event) {
-			//not sure what goes in here
+		websocket.addEventListener('message', event => {
+			const highScores = JSON.parse(event.data);
+			this.setState({
+				leaderboard: highScores
+			});
 		});
 	}
-
-	private renderInput = (): JSX.Element => {
-		return <input type="text" ref="username" id="username" />;
-	};
 
 	private postTypie = () => {
 		let username = this.refs.username['value'].trim();
@@ -70,15 +74,6 @@ class Index extends React.Component<any, any> {
 			.catch(error => {
 				window.alert(error);
 			});
-	};
-
-	private renderTableHeading = (): JSX.Element => {
-		return (
-			<tr>
-				<th>Username</th>
-				<th>Time</th>
-			</tr>
-		);
 	};
 
 	private renderTableData = (typie): JSX.Element => {
