@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/info344-a17/typy-bird/server/models"
 	"gopkg.in/mgo.v2/bson"
@@ -23,12 +22,6 @@ func NewHandlerContext(gameRoom *models.GameRoom, typieStore *models.MongoStore)
 		GameRoom:   gameRoom,
 		TypieStore: typieStore,
 	}
-}
-
-//SessionState keeps track of current session information
-type SessionState struct {
-	SessionStart time.Time
-	TypieBird    *models.TypieBird
 }
 
 //TypieHandler handles methods for the /typie route
@@ -76,6 +69,19 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 	typieBirdID := bson.ObjectId(queryParams.Get("auth"))
 
 	switch r.Method {
+	case "GET":
+		//get bird associate with current ID
+		bird, err := c.TypieStore.GetByID(typieBirdID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error retrieving typie bird from store: %v", err), http.StatusBadRequest)
+			return
+		}
+		//respond to client with updated bird
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(bird); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
 	case "PATCH":
 		//decode new record from request body
 		updates := &models.Updates{}
