@@ -32,8 +32,8 @@ func main() {
 	gameRoom := &models.GameRoom{Available: true}
 
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(gameRoom, typieStore)
 	notifier := ws.NewNotifier()
+	context := handlers.NewHandlerContext(notifier, gameRoom, typieStore)
 	mux := http.NewServeMux()
 
 	//POST for creating new typies
@@ -44,6 +44,8 @@ func main() {
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
 	//PATCH for updating typie positions
 	mux.HandleFunc("/typie/position", context.PositionHandler)
+	//PATCH for updating typie ready status
+	mux.HandleFunc("/ready", context.ReadyHandler)
 	//GET for gameroom
 	mux.HandleFunc("/gameroom", context.GameroomHandler)
 	//upgrading to websockets
