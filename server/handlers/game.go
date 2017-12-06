@@ -64,11 +64,25 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 
 //TypieMeHandler handles the methods for the /typie/me route
 func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) {
-	//get bird associated with current ID
+	//get ID from auth header
 	queryParams := r.URL.Query()
 	typieBirdID := bson.ObjectId(queryParams.Get("auth"))
 
 	switch r.Method {
+	case "GET":
+		//get bird associate with current ID
+		bird, err := c.TypieStore.GetByID(typieBirdID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error retrieving typie bird from store: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//respond to client with updated bird
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(bird); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
 	case "PATCH":
 		//decode new record from request body
 		updates := &models.Updates{}
