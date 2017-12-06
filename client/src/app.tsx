@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
@@ -12,7 +13,8 @@ class App extends React.Component<any, any> {
 
 		this.state = {
 			playerState: 'waiting',
-			counterVal: 3
+			counterVal: 3,
+			gameRoom: null
 		};
 	}
 
@@ -34,9 +36,19 @@ class App extends React.Component<any, any> {
 		);
 	}
 
+	public componentWillMount() {
+		this.fetchGameRoom();
+	}
+
 	public componentDidMount() {
 		// Fetch game state and store it locally.
-		Game.Init();
+		const websocket = this.establishWebsocket();
+		websocket.addEventListener('message', event => {
+			this.setState({
+				gameRoom: event.data
+			});
+		});
+		Game.Init(websocket);
 	}
 
 	public componentDidUpdate() {
@@ -47,6 +59,47 @@ class App extends React.Component<any, any> {
 			clearInterval(counter);
 		}
 	}
+
+	private establishWebsocket = (): WebSocket => {
+		const websocket = new WebSocket(`ws://${this.getCurrentHost()}/ws`);
+		websocket.addEventListener('error', function(err) {
+			console.log(err);
+		});
+		websocket.addEventListener('open', function() {
+			console.log('Websocket connection established');
+		});
+		websocket.addEventListener('close', function() {
+			console.log('Websocket connection closed');
+		});
+		return websocket;
+	};
+
+	// When a new player first joins the game room,
+	// fetch the most updated game room.
+	// This is a hacky way to get game room.
+	// Sending request to this url will cause websocket to broadcast game room.
+	// We are not really getting any response data back.
+	private fetchGameRoom = (): void => {
+		const url = `http://${this.getCurrentHost()}/position`;
+		axios
+			.get(url)
+			.then(res => {
+				console.log(res);
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
+	private getCurrentHost = (): string => {
+		let host: string;
+		if (window.location.hostname === 'typy-bird.zicodeng.me') {
+			host = 'typy-bird-api.zicodeng.me';
+		} else {
+			host = 'localhost:3000';
+		}
+		return host;
+	};
 
 	private renderButtons = (): JSX.Element => {
 		const playerState = this.state.playerState;

@@ -21,7 +21,7 @@ export interface GameState {
 }
 
 // Initialize the game.
-export const Init = (): void => {
+export const Init = (websocket: WebSocket): void => {
 	const bgCanvas = <HTMLCanvasElement>document.getElementById('bg-canvas');
 	const fgCanvas = <HTMLCanvasElement>document.getElementById('fg-canvas');
 
@@ -66,6 +66,13 @@ export const Init = (): void => {
 		animFrame: 0,
 		entities: {}
 	};
+
+	// Update game state based on the server's response.
+	websocket.addEventListener('message', event => {
+		// Change state that will get passed to update and render functions.
+		console.log(event.data);
+	});
+
 	EntitiesInit(state);
 	RenderInit(state);
 
