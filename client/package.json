@@ -4,7 +4,7 @@
 	"description": "Typy Bird is a multiplayer web-based typing game",
 	"main": "index.js",
 	"scripts": {
-		"start": "webpack-dev-server -d --config webpack.dev.js",
+		"start": "webpack-dev-server -d --color --config webpack.dev.js",
 		"build": "webpack --color --progress --config webpack.prod.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
