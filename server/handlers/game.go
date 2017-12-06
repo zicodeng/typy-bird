@@ -127,13 +127,20 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			Available: c.GameRoom.Available,
 		}
 
-		//broadcast leaderboard to client
-		board, jsonErr := json.Marshal(leaderBoard)
+		wsPayload := struct {
+			Type    string
+			Payload *models.LeaderBoard
+		}{
+			"leaderboard",
+			leaderBoard,
+		}
+		//broadcast new gameroom state to client
+		payload, jsonErr := json.Marshal(wsPayload)
 		if jsonErr != nil {
-			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", jsonErr), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		c.Notifier.Notify(board)
+		c.Notifier.Notify(payload)
 
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
@@ -174,13 +181,20 @@ func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		wsPayload := struct {
+			Type    string
+			Payload *models.GameRoom
+		}{
+			"position",
+			c.GameRoom,
+		}
 		//broadcast new gameroom state to client
-		room, jsonErr := json.Marshal(c.GameRoom)
+		payload, jsonErr := json.Marshal(wsPayload)
 		if jsonErr != nil {
-			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		c.Notifier.Notify(room)
+		c.Notifier.Notify(payload)
 
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
@@ -200,6 +214,54 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 	case "GET":
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(c.GameRoom); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//ReadyHandler handles updating the typies ready status
+func (c *HandlerContext) ReadyHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "PATCH":
+		//get ID of current typie bird
+		queryParams := r.URL.Query()
+		typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+
+		//check current bird is a player in the game room (authorize)
+		if _, err := c.GameRoom.GetByID(typieBirdID); err != nil {
+			http.Error(w, fmt.Sprintf("error getting typie bird: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//update status of typie bird in gameroom struct
+		bird, incrErr := c.GameRoom.ReadyUp(typieBirdID)
+		if incrErr != nil {
+			http.Error(w, fmt.Sprintf("error updating typie bird ready status: %v", incrErr), http.StatusInternalServerError)
+			return
+		}
+
+		wsPayload := struct {
+			Type    string
+			Payload *models.GameRoom
+		}{
+			"ready",
+			c.GameRoom,
+		}
+		//broadcast new gameroom state to client
+		payload, jsonErr := json.Marshal(wsPayload)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		c.Notifier.Notify(payload)
+
+		//respond to client with updated bird
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(bird); err != nil {
 			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
 			return
 		}
