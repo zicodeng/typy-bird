@@ -7,11 +7,13 @@ import (
 	"net/http"
 
 	"github.com/info344-a17/typy-bird/server/models"
+	"github.com/info344-a17/typy-bird/server/ws"
 	"gopkg.in/mgo.v2/bson"
 )
 
 //HandlerContext keeps track of database information
 type HandlerContext struct {
+	Notifier   *ws.Notifier
 	GameRoom   *models.GameRoom
 	TypieStore *models.MongoStore
 }
@@ -30,8 +32,7 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		//decode new typie bird from request body
 		newTypie := &models.NewTypieBird{}
-		err := json.NewDecoder(r.Body).Decode(newTypie)
-		if err != nil {
+		if err := json.NewDecoder(r.Body).Decode(newTypie); err != nil {
 			http.Error(w, fmt.Sprintf("error decoding typie json: %v", err), http.StatusInternalServerError)
 			return
 		}
@@ -40,20 +41,27 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		typie := newTypie.ToTypie()
 
 		//insert typie bird into the mongo store
-		insertedTypie, err := c.TypieStore.InsertTypieBird(typie)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("error inserting typie: %v", err), http.StatusInternalServerError)
+		insertedTypie, insErr := c.TypieStore.InsertTypieBird(typie)
+		if insErr != nil {
+			http.Error(w, fmt.Sprintf("error inserting typie: %v", insErr), http.StatusInternalServerError)
 			return
 		}
 
 		//add typie bird to gameroom
 		c.GameRoom.Add(insertedTypie)
 
+		//broadcast new gameroom state to client
+		room, jsonErr := json.Marshal(c.GameRoom)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		ph.notifier.Notify(room)
+
 		//respond to client with created typie bird
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		err = json.NewEncoder(w).Encode(typie)
-		if err != nil {
+		if err := json.NewEncoder(w).Encode(typie); err != nil {
 			http.Error(w, fmt.Sprintf("error encoding the created typie: %v", err), http.StatusInternalServerError)
 			return
 		}
