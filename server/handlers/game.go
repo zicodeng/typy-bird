@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"math/rand"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -77,11 +78,6 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 	case "PATCH":
 		//get session state associated with current typie bird
 		state := &SessionState{}
-		sessID, err := sessions.GetState(r, c.SessionKey, c.SessionStore, state)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("error getting session state: %v", err), http.StatusUnauthorized)
-			return
-		}
 
 		//decode new record from request body
 		updates := &models.Updates{}
@@ -96,11 +92,6 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// update bird in session store
-		if err := c.SessionStore.Save(sessID, state); err != nil {
-			http.Error(w, fmt.Sprintf("error saving to session store: %v", err), http.StatusBadRequest)
-			return
-		}
 
 		//update bird in typie store
 		if err := c.TypieStore.Update(state.TypieBird.ID, updates); err != nil {
@@ -115,6 +106,53 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fourLetterWords := [25]string{"curl", "etas","pleb","tabi","soup","tune","kure","tech",
+			"suez","veld","bash","cole","peek","kill","tarn","momi","flee","cone",
+			"cham","land","amok","ship","maim","bird","prig"}
+		fiveLetterWords := [25]string{"roost","gayly","ptain","unbid","umiac","kappa","festa","every",
+			"playa","olden","donna","godin","muzio","sauce","blink","cause","chirm","oriel","schwa",
+			"bogle","chick","dolin","loads","using","sweal"}
+		sixLetterWords := [25]string{"catton","khedah","untold","bhindi","decree","kinase","cohere",
+			"waffie","garter","bashan","roddie","stingo","dodger","chalet","contra","blanch",
+			"edwina","immesh","fulmar","saddle","finish","piggin","riches","dengue","mizzle",}
+		sevenLetterWords := [25]string{"unmined","rosario","ericoid","herbert","faraway","grimace",
+			"brioche","napless","deprive","inhered","plantin","outpour","whoosis","impanel",
+			"stuffed","taussig","narvez","seattle","millier","leister","arduous","ransome",
+			"luzerne","bunches","bighead"}
+		dictArray := [4][25]string{fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords}
+		dictionary := make([]string, 20)
+		randDictionary := make([]string, len(dictionary))
+		perm := rand.Perm(25)
+		count := 0
+		for i := 0; i < 4; i++ {
+			for index, value := range perm {
+				if index == 5 {
+					break
+				}
+				dictionary[count] = dictArray[i][value]
+				count++
+			}
+		}
+		perm = rand.Perm(20)
+		for i, v := range perm {
+			randDictionary[v] = dictionary[i]
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+
+		err := json.NewEncoder(w).Encode(randDictionary)
+		if err != nil {
+			http.Error(w, "error encoding dictionary: %v", http.StatusInternalServerError)
+			return
+		}
+	} else {
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
 	}

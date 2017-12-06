@@ -54,6 +54,8 @@ func main() {
 
 	//POST,GET,PATCH for typies
 	mux.HandleFunc("/typie", context.TypieHandler)
+	//GET for dictionary words
+	mux.HandleFunc("/dictionary", context.DictHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
