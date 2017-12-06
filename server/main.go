@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/info344-a17/typy-bird/server/handlers"
 	"github.com/info344-a17/typy-bird/server/models"
 	"github.com/info344-a17/typy-bird/server/ws"
 	"gopkg.in/mgo.v2"
-	"log"
-	"net/http"
-	"os"
 )
 
 func main() {
@@ -45,6 +46,8 @@ func main() {
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
 	mux.Handle("/position", ws.NewPositionHandler(notifier, context))
+	//sending leader stats to waiting players
+	mux.Handle("/leaderboard", ws.NewLeaderBoardHandler(notifier, context))
 
 	corsMux := handlers.NewCORSHandler(mux)
 
