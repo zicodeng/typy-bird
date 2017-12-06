@@ -14,7 +14,8 @@ class App extends React.Component<any, any> {
 		this.state = {
 			playerState: 'waiting',
 			counterVal: 3,
-			gameRoom: null
+			gameRoom: null,
+			player: null
 		};
 	}
 
@@ -108,7 +109,9 @@ class App extends React.Component<any, any> {
 		axios
 			.get(url)
 			.then(res => {
-				console.log(res);
+				this.setState({
+					player: res.data
+				});
 			})
 			.catch(error => {
 				console.log(error);
