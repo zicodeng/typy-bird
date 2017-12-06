@@ -34,7 +34,8 @@ func NewMongoStore(sess *mgo.Session, dbName string, collectionName string) *Mon
 func (s *MongoStore) GetByID(id bson.ObjectId) (*TypieBird, error) {
 	typieBird := &TypieBird{}
 	col := s.session.DB(s.dbname).C(s.colname)
-	err := col.FindId(id).One(typieBird)
+	fmt.Println(id)
+	err := col.FindId(id).One(&typieBird)
 	if err != nil {
 		return nil, ErrTypieBirdNotFound
 	}
@@ -55,7 +56,8 @@ func (s *MongoStore) GetByUserName(username string) (*TypieBird, error) {
 //InsertTypieBird inserts a new typie bird into the mongo store and returns the typie bird
 func (s *MongoStore) InsertTypieBird(newTypie *TypieBird) (*TypieBird, error) {
 	col := s.session.DB(s.dbname).C(s.colname)
-	newTypie.ID = bson.NewObjectId()
+	// newTypie.ID = bson.NewObjectId()
+	fmt.Println(newTypie.ID)
 	if err := col.Insert(newTypie); err != nil {
 		return nil, fmt.Errorf("error inserting typie bird: %v", err)
 	}

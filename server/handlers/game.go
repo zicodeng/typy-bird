@@ -40,13 +40,14 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		typie := newTypie.ToTypie()
 
 		//insert typie bird into the mongo store
-		if _, err := c.TypieStore.InsertTypieBird(typie); err != nil {
+		insertedTypie, err := c.TypieStore.InsertTypieBird(typie)
+		if err != nil {
 			http.Error(w, fmt.Sprintf("error inserting typie: %v", err), http.StatusInternalServerError)
 			return
 		}
 
 		//add typie bird to gameroom
-		c.GameRoom.Add(typie)
+		c.GameRoom.Add(insertedTypie)
 
 		//respond to client with created typie bird
 		w.Header().Add("Content-Type", "application/json")
@@ -66,7 +67,7 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) {
 	//get bird associated with current ID
 	queryParams := r.URL.Query()
-	typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+	typieBirdID := bson.ObjectIdHex(queryParams.Get("auth"))
 
 	switch r.Method {
 	case "GET":
