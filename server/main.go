@@ -16,12 +16,6 @@ func main() {
 		addr = ":80"
 	}
 
-	//Session Initialization
-	sessionKey := os.Getenv("SESSIONKEY")
-	if len(sessionKey) == 0 {
-		log.Fatal("the SESSIONKEY was not set")
-	}
-
 	//MongoDB Initialization
 	dbAddr := os.Getenv("DBADDR")
 	if len(dbAddr) == 0 {
@@ -34,7 +28,7 @@ func main() {
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
 
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(sessionKey, typieStore)
+	context := handlers.NewHandlerContext(typieStore)
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 

@@ -17,9 +17,8 @@ type HandlerContext struct {
 }
 
 //NewHandlerContext creates a new instance of a context struct to be used by a handler
-func NewHandlerContext(key string, typieStore *models.MongoStore) *HandlerContext {
+func NewHandlerContext(typieStore *models.MongoStore) *HandlerContext {
 	return &HandlerContext{
-		SessionKey:   key,
 		TypieStore:   typieStore,
 	}
 }
@@ -110,39 +109,8 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 
 func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		fourLetterWords := [25]string{"curl", "etas","pleb","tabi","soup","tune","kure","tech",
-			"suez","veld","bash","cole","peek","kill","tarn","momi","flee","cone",
-			"cham","land","amok","ship","maim","bird","prig"}
-		fiveLetterWords := [25]string{"roost","gayly","ptain","unbid","umiac","kappa","festa","every",
-			"playa","olden","donna","godin","muzio","sauce","blink","cause","chirm","oriel","schwa",
-			"bogle","chick","dolin","loads","using","sweal"}
-		sixLetterWords := [25]string{"catton","khedah","untold","bhindi","decree","kinase","cohere",
-			"waffie","garter","bashan","roddie","stingo","dodger","chalet","contra","blanch",
-			"edwina","immesh","fulmar","saddle","finish","piggin","riches","dengue","mizzle",}
-		sevenLetterWords := [25]string{"unmined","rosario","ericoid","herbert","faraway","grimace",
-			"brioche","napless","deprive","inhered","plantin","outpour","whoosis","impanel",
-			"stuffed","taussig","narvez","seattle","millier","leister","arduous","ransome",
-			"luzerne","bunches","bighead"}
-		dictArray := [4][25]string{fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords}
-		dictionary := make([]string, 20)
-		randDictionary := make([]string, len(dictionary))
-		perm := rand.Perm(25)
-		count := 0
-		for i := 0; i < 4; i++ {
-			for index, value := range perm {
-				if index == 5 {
-					break
-				}
-				dictionary[count] = dictArray[i][value]
-				count++
-			}
-		}
-		perm = rand.Perm(20)
-		for i, v := range perm {
-			randDictionary[v] = dictionary[i]
-		}
+		randDictionary := GetRandomDict()
 		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusAccepted)
 
 		err := json.NewEncoder(w).Encode(randDictionary)
 		if err != nil {
@@ -153,4 +121,37 @@ func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func GetRandomDict() []string {
+	fourLetterWords := [25]string{"curl", "etas","pleb","tabi","soup","tune","kure","tech",
+		"suez","veld","bash","cole","peek","kill","tarn","momi","flee","cone",
+		"cham","land","amok","ship","maim","bird","prig"}
+	fiveLetterWords := [25]string{"roost","gayly","ptain","unbid","umiac","kappa","festa","every",
+		"playa","olden","donna","godin","muzio","sauce","blink","cause","chirm","oriel","schwa",
+		"bogle","chick","dolin","loads","using","sweal"}
+	sixLetterWords := [25]string{"catton","khedah","untold","bhindi","decree","kinase","cohere",
+		"waffie","garter","bashan","roddie","stingo","dodger","chalet","contra","blanch",
+		"edwina","immesh","fulmar","saddle","finish","piggin","riches","dengue","mizzle",}
+	sevenLetterWords := [25]string{"unmined","rosario","ericoid","herbert","faraway","grimace",
+		"brioche","napless","deprive","inhered","plantin","outpour","whoosis","impanel",
+		"stuffed","taussig","narvez","seattle","millier","leister","arduous","ransome",
+		"luzerne","bunches","bighead"}
+	dictArray := [4][25]string{fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords}
+	dictionary := make([]string, 20)
+	randDictionary := make([]string, len(dictionary))
+	perm := rand.Perm(25)
+	for i := 0; i < len(dictArray); i++ {
+		for index, value := range perm {
+			if index == 5 {
+				break
+			}
+			dictionary = append(dictionary, dictArray[i][value])
+		}
+	}
+	perm = rand.Perm(20)
+	for i, v := range perm {
+		randDictionary[v] = dictionary[i]
+	}
+	return randDictionary
 }
