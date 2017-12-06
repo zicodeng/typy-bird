@@ -4,6 +4,9 @@ import { EntitiesInit } from './entities';
 import { RenderInit, RenderUpdate } from 'game/render';
 import { AnimUpdate } from './anim';
 
+import Typie from './entities/typie';
+import Heart from './entities/heart';
+
 const Spritesheet = require('spritesheet/game.png');
 
 interface GameCanvas {
@@ -67,10 +70,17 @@ export const Init = (websocket: WebSocket): void => {
 		entities: {}
 	};
 
+	state.entities.typies = [];
+	state.entities.hearts = [];
+
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
 		console.log(event.data);
+		const gameRoom = event.data;
+
+		// state.entities.typies.push(new Typie(state.spritesheet, 50, posY));
+		// state.entities.hearts.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
 	});
 
 	EntitiesInit(state);
