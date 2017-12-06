@@ -41,6 +41,7 @@ class App extends React.Component<any, any> {
 
 	public componentWillMount() {
 		this.fetchGameRoom();
+		this.fetchPlayer();
 	}
 
 	public componentDidMount() {
@@ -84,10 +85,31 @@ class App extends React.Component<any, any> {
 	// Sending request to this url will cause websocket to broadcast game room.
 	// We are not really getting any response data back.
 	private fetchGameRoom = (): void => {
-		const url = `http://${this.getCurrentHost()}/position`;
-		axios.get(url).catch(error => {
-			console.log(error);
-		});
+		const url = `http://${this.getCurrentHost()}/gameroom`;
+		axios
+			.get(url)
+			.then(res => {
+				console.log(res);
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
+	private fetchPlayer = (): void => {
+		const typieID = localStorage.getItem('TypieID');
+		if (!typieID) {
+			return;
+		}
+		const url = `http://${this.getCurrentHost()}/typie/me?auth=${typieID}`;
+		axios
+			.get(url)
+			.then(res => {
+				console.log(res);
+			})
+			.catch(error => {
+				console.log(error);
+			});
 	};
 
 	private getCurrentHost = (): string => {
