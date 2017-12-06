@@ -6,7 +6,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//MAKE ERROR CONSTANT
+//ErrTypieBirdNotPlayer is thrown when a typie bird with the given ID is not in the game room player struct
+var ErrTypieBirdNotPlayer = errors.New("typie bird does not exist in game room")
 
 //GameRoom represents the room of players
 type GameRoom struct {
@@ -50,12 +51,14 @@ func (room *GameRoom) Update(typieBirdID bson.ObjectId, updates *Updates) (*Typi
 			return player, nil
 		}
 	}
-	return nil, errors.New("typie bird does not exist in game room")
+	return nil, ErrTypieBirdNotPlayer
 }
 
 //Add adds a typie bird into the game room
 func (room *GameRoom) Add(bird *TypieBird) error {
-	room.Players = append(room.Players, bird)
+	if len(room.Players) < 4 {
+		room.Players = append(room.Players, bird)
+	}
 	return nil
 }
 
@@ -66,7 +69,7 @@ func (room *GameRoom) GetByID(typieBirdID bson.ObjectId) (*TypieBird, error) {
 			return player, nil
 		}
 	}
-	return nil, errors.New("typie bird does not exist in game room")
+	return nil, ErrTypieBirdNotPlayer
 }
 
 //DeleteByID removes the typie bird with `typieBirdID` from the game room
@@ -77,5 +80,5 @@ func (room *GameRoom) DeleteByID(typieBirdID bson.ObjectId) error {
 			return nil
 		}
 	}
-	return errors.New("typie bird does not exist in game room")
+	return ErrTypieBirdNotPlayer
 }

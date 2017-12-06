@@ -24,7 +24,7 @@ func (ph *PositionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//marshall GameRoom struct into json
 	room, err := json.Marshal(ph.context.GameRoom)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", err), http.StatusInternalServerError)
 		return
 	}
 
