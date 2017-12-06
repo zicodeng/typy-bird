@@ -63,9 +63,19 @@ func (room *GameRoom) Update(typieBirdID bson.ObjectId, updates *Updates) (*Typi
 
 //Add adds a typie bird into the game room
 func (room *GameRoom) Add(bird *TypieBird) error {
-	if len(room.Players) < 4 {
-		room.Players = append(room.Players, bird)
+	//check room is not already full
+	if len(room.Players) > 4 {
+		return errors.New("gameroom full")
 	}
+
+	//add typie bird to game room
+	room.Players = append(room.Players, bird)
+
+	//change gameroom availability if necessary
+	if len(room.Players) == 4 {
+		room.Available = false
+	}
+
 	return nil
 }
 
