@@ -19,8 +19,9 @@ type HandlerContext struct {
 }
 
 //NewHandlerContext creates a new instance of a context struct to be used by a handler
-func NewHandlerContext(gameRoom *models.GameRoom, typieStore *models.MongoStore) *HandlerContext {
+func NewHandlerContext(notifier *ws.Notifier, gameRoom *models.GameRoom, typieStore *models.MongoStore) *HandlerContext {
 	return &HandlerContext{
+		Notifier:   notifier,
 		GameRoom:   gameRoom,
 		TypieStore: typieStore,
 	}
@@ -85,6 +86,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, fmt.Sprintf("error retrieving typie bird from store: %v", err), http.StatusBadRequest)
 			return
 		}
+
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(bird); err != nil {
@@ -112,6 +114,27 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
+		//get top scorers from mongo store
+		leaders, getErr := c.TypieStore.GetTopScores()
+		if getErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", getErr), http.StatusInternalServerError)
+			return
+		}
+
+		//create LeaderBoard struct and marshall to json
+		leaderBoard := &models.LeaderBoard{
+			Leaders:   leaders,
+			Available: lh.context.GameRoom.Available,
+		}
+
+		//broadcast leaderboard to client
+		board, jsonErr := json.Marshal(leaderBoard)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		lh.notifier.Notify(board)
+
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(bird); err != nil {
@@ -124,6 +147,47 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 
 		//respond to client
 		w.Write([]byte("game ended for player\n"))
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//PositionHandler handles the /position route and returns the current postion of a bird
+func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "PATCH":
+		//get ID of current typie bird
+		queryParams := r.URL.Query()
+		typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+
+		//check current bird is a player in the game room (authorize)
+		if _, err := c.GameRoom.GetByID(typieBirdID); err != nil {
+			http.Error(w, fmt.Sprintf("error getting typie bird: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		//update position of typie bird in gameroom struct
+		bird, incrErr := c.GameRoom.IncrementPosition(typieBirdID)
+		if incrErr != nil {
+			http.Error(w, fmt.Sprintf("error updating typie bird position: %v", incrErr), http.StatusInternalServerError)
+			return
+		}
+
+		//broadcast new gameroom state to client
+		room, jsonErr := json.Marshal(c.GameRoom)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		ph.notifier.Notify(room)
+
+		//respond to client with updated bird
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(bird); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
 	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
