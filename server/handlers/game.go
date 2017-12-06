@@ -57,12 +57,12 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		ph.notifier.Notify(room)
+		c.Notifier.Notify(room)
 
 		//respond to client with created typie bird
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(typie); err != nil {
+		if err := json.NewEncoder(w).Encode(insertedTypie); err != nil {
 			http.Error(w, fmt.Sprintf("error encoding the created typie: %v", err), http.StatusInternalServerError)
 			return
 		}
@@ -124,7 +124,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 		//create LeaderBoard struct and marshall to json
 		leaderBoard := &models.LeaderBoard{
 			Leaders:   leaders,
-			Available: lh.context.GameRoom.Available,
+			Available: c.GameRoom.Available,
 		}
 
 		//broadcast leaderboard to client
@@ -133,7 +133,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		lh.notifier.Notify(board)
+		c.Notifier.Notify(board)
 
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
@@ -180,7 +180,7 @@ func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request)
 			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		ph.notifier.Notify(room)
+		c.Notifier.Notify(room)
 
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
