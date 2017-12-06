@@ -80,7 +80,7 @@ class Index extends React.Component<any, any> {
 		axios
 			.post(url, typie)
 			.then(res => {
-				localStorage.setItem('TypieID', JSON.stringify(res.data.id));
+				localStorage.setItem('TypieID', res.data.id);
 				window.location.replace('app.html');
 			})
 			.catch(error => {
