@@ -51,13 +51,20 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		//add typie bird to gameroom
 		c.GameRoom.Add(insertedTypie)
 
+		wsPayload := struct {
+			Type    string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
+		}{
+			"NewTypie",
+			c.GameRoom,
+		}
 		//broadcast new gameroom state to client
-		room, jsonErr := json.Marshal(c.GameRoom)
+		payload, jsonErr := json.Marshal(wsPayload)
 		if jsonErr != nil {
-			http.Error(w, fmt.Sprintf("error marshalling gameroom to JSON: %v", jsonErr), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		c.Notifier.Notify(room)
+		c.Notifier.Notify(payload)
 
 		//respond to client with created typie bird
 		w.Header().Add("Content-Type", "application/json")
