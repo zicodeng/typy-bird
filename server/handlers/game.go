@@ -59,7 +59,7 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 		err = json.NewEncoder(w).Encode(typie)
 		if err != nil {
-			http.Error(w, "error encoding the created typie", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("error encoding the created typie: %v", err), http.StatusInternalServerError)
 			return
 		}
 	default:
