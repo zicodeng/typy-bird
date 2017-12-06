@@ -32,7 +32,7 @@ func main() {
 	gameRoom := &models.GameRoom{Available: true}
 
 	//Initialize handler stuff
-	notifier := ws.NewNotifier()
+	notifier := ws.NewNotifier(gameRoom)
 	context := handlers.NewHandlerContext(notifier, gameRoom, typieStore)
 	mux := http.NewServeMux()
 
@@ -49,7 +49,7 @@ func main() {
 	//GET for gameroom
 	mux.HandleFunc("/gameroom", context.GameroomHandler)
 	//upgrading to websockets
-	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
+	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier, gameRoom))
 
 	corsMux := handlers.NewCORSHandler(mux)
 
