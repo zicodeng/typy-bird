@@ -11,7 +11,8 @@ class App extends React.Component<any, any> {
 		super(props, context);
 
 		this.state = {
-			playerState: 'waiting'
+			playerState: 'waiting',
+			counterVal: 3
 		};
 	}
 
@@ -21,7 +22,12 @@ class App extends React.Component<any, any> {
 				<h1 className="countdown" />
 				<h1>Typie Bird</h1>
 				{this.renderButtons()}
-				<Typing playerState={this.state.playerState} />
+				{this.checkPlayersState() && this.state.counterVal !== 0 ? (
+					<h1 className="counter">{this.state.counterVal}</h1>
+				) : null}
+				{this.checkPlayersState() && this.state.counterVal === 0 ? (
+					<Typing playerState={this.state.playerState} />
+				) : null}
 				<canvas id="bg-canvas" />
 				<canvas id="fg-canvas" />
 			</div>
@@ -34,9 +40,11 @@ class App extends React.Component<any, any> {
 	}
 
 	public componentDidUpdate() {
-		// If all players are ready, start the game.
-		if (this.checkPlayersState()) {
-			console.log('start');
+		const counter = this.state.counter;
+		// Start the game when the counterVal is 0,
+		// and stop counter.
+		if (this.state.counterVal === 0) {
+			clearInterval(counter);
 		}
 	}
 
@@ -60,11 +68,29 @@ class App extends React.Component<any, any> {
 		this.setState({
 			playerState: 'ready'
 		});
+		// If all players are ready, start the game.
+		if (this.checkPlayersState()) {
+			let counterVal = this.state.counterVal;
+			const counter = setInterval(() => {
+				if (counterVal !== 0) {
+					counterVal--;
+					this.setState({
+						counterVal: counterVal
+					});
+				}
+			}, 1000);
+			this.setState({
+				counter: counter
+			});
+		}
 	};
 
 	private handleClickCancel = (): void => {
+		const counter = this.state.counter;
+		clearInterval(counter);
 		this.setState({
-			playerState: 'waiting'
+			playerState: 'waiting',
+			counterVal: 3
 		});
 	};
 
