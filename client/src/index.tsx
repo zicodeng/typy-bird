@@ -9,8 +9,7 @@ class Index extends React.Component<any, any> {
 		super(props, context);
 
 		this.state = {
-			typies: new Array(),
-			available: false
+			gameRoom: null
 		};
 	}
 
@@ -20,20 +19,7 @@ class Index extends React.Component<any, any> {
 				<h1>Hello, New Typies</h1>
 				<input type="text" ref="username" id="username" />
 				<button onClick={e => this.postTypie()}>PLAY</button>
-				{this.state.available ? <h3>Gameroom Open!</h3> : null}
-				<table style={{ width: 100 }}>
-					<thead>
-					<tr>
-						<th>Username</th>
-						<th>Time</th>
-					</tr>
-					</thead>
-					<tbody>
-						{this.state.typies.forEach(element => {
-							this.renderTableData(element);
-						})}
-					</tbody>
-				</table>
+				{this.renderTable()}
 			</div>
 		);
 	}
@@ -41,18 +27,44 @@ class Index extends React.Component<any, any> {
 	public componentWillMount() {
 		//establish websocket collection
 		let host = this.getCurrentHost();
-
 		const websocket = new WebSocket('ws://' + host + '/ws');
+
 		websocket.addEventListener('error', function(err) {
-			window.alert(err);
+			console.log(err);
+		});
+		websocket.addEventListener('open', function() {
+			console.log('Websocket connection established');
+		});
+		websocket.addEventListener('close', function() {
+			console.log('Websocket connection closed');
 		});
 		websocket.addEventListener('message', event => {
-			const highScores = JSON.parse(event.data);
+			const gameRoom = JSON.parse(event.data);
 			this.setState({
-				leaderboard: highScores
+				gameRoom: gameRoom
 			});
 		});
 	}
+
+	private renderTable = (): JSX.Element => {
+		const thead = (
+			<thead>
+				<tr>
+					<th>Username</th>
+					<th>Best Record</th>
+				</tr>
+			</thead>
+		);
+		const rows = (
+			{}
+		)
+		const tbody = (
+			<tbody>
+				{rows}
+			</tbody>
+		)
+		return <table>{thead}</table>;
+	};
 
 	private postTypie = () => {
 		let username = this.refs.username['value'].trim();
@@ -68,7 +80,7 @@ class Index extends React.Component<any, any> {
 		axios
 			.post(url, typie)
 			.then(res => {
-				localStorage.setItem('TypieID', JSON.stringify(res.data.id));
+				localStorage.setItem('TypieID', res.data.id);
 				window.location.replace('app.html');
 			})
 			.catch(error => {
