@@ -47,17 +47,21 @@ func main() {
 	}
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
 
+	//Initialize game room struct
+	gameRoom := &models.GameRoom{Available: true}
+
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore)
+	context := handlers.NewHandlerContext(gameRoom, typieStore)
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 
-	//POST,GET,PATCH for typies
+	//POST,GET,PATCH,DELETE for typies
 	mux.HandleFunc("/typie", context.TypieHandler)
+	mux.HandleFunc("/typie/me", context.TypieMeHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
-	mux.Handle("/update", ws.NewUpdateHandler(notifier))
+	mux.Handle("/position", ws.NewPositionHandler(notifier, context))
 
 	log.Printf("server is listening at http://%s...", addr)
 	log.Fatal(http.ListenAndServe(addr, mux))

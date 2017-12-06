@@ -71,7 +71,7 @@ func (s *MongoStore) InsertWords(word string) (string, error) {
 	return word, nil
 }
 
-//Update applies UserUpdates to the given user ID
+//Update is a helper function for UpdateRecord and UpdatePosition
 func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
 	typie := &TypieBird{}
 	change := mgo.Change{
@@ -80,7 +80,7 @@ func (s *MongoStore) Update(typieBirdID bson.ObjectId, updates *Updates) error {
 	}
 	col := s.session.DB(s.dbname).C(s.colname)
 	if _, err := col.FindId(typieBirdID).Apply(change, typie); err != nil {
-		return fmt.Errorf("error updating user: %v", err)
+		return fmt.Errorf("error updating typie bird: %v", err)
 	}
 	return nil
 }
@@ -94,6 +94,7 @@ func (s *MongoStore) Delete(typieBirdID bson.ObjectId) error {
 	return nil
 }
 
+//GetTopScores retrieves the 10 typie bird's with the highest score
 func (s *MongoStore) GetTopScores() ([]*TypieBird, error) {
 	topScores := make([]*TypieBird, 10)
 	col := s.session.DB(s.dbname).C(s.colname)
