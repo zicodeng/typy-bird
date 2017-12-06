@@ -57,6 +57,10 @@ class App extends React.Component<any, any> {
 		const websocket = new WebSocket(`ws://${this.getCurrentHost()}/ws`);
 		websocket.addEventListener('error', function(err) {
 			console.log(err);
+			// If the connection is lost,
+			// the player will be forced to quit the game.
+			localStorage.removeItem('TypieID');
+			window.location.replace('index.html');
 		});
 		websocket.addEventListener('open', function() {
 			console.log('Websocket connection established');
