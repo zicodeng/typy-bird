@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/info344-a17/typy-bird/server/models"
 	"gopkg.in/mgo.v2/bson"
@@ -22,6 +23,12 @@ func NewHandlerContext(gameRoom *models.GameRoom, typieStore *models.MongoStore)
 		GameRoom:   gameRoom,
 		TypieStore: typieStore,
 	}
+}
+
+//SessionState keeps track of current session information
+type SessionState struct {
+	SessionStart time.Time
+	TypieBird    *models.TypieBird
 }
 
 //TypieHandler handles methods for the /typie route
@@ -64,25 +71,11 @@ func (c *HandlerContext) TypieHandler(w http.ResponseWriter, r *http.Request) {
 
 //TypieMeHandler handles the methods for the /typie/me route
 func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) {
-	//get ID from auth header
+	//get bird associated with current ID
 	queryParams := r.URL.Query()
 	typieBirdID := bson.ObjectId(queryParams.Get("auth"))
 
 	switch r.Method {
-	case "GET":
-		//get bird associate with current ID
-		bird, err := c.TypieStore.GetByID(typieBirdID)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("error retrieving typie bird from store: %v", err), http.StatusBadRequest)
-			return
-		}
-
-		//respond to client with updated bird
-		w.Header().Add("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(bird); err != nil {
-			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
-			return
-		}
 	case "PATCH":
 		//decode new record from request body
 		updates := &models.Updates{}
@@ -122,9 +115,25 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+//GameroomHandler handles the /gameroom route and returns the current gameroom
+func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		w.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(c.GameRoom); err != nil {
+			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+	}
+}
+
+//DictHandler handles the /dictionary route and gets a list of random words that the users must type to complete the game
 func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		randDictionary := GetRandomDict()
+	switch r.Method {
+	case "GET":
+		randDictionary := getRandomDict()
 		w.Header().Add("Content-Type", "application/json")
 
 		err := json.NewEncoder(w).Encode(randDictionary)
@@ -132,13 +141,13 @@ func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "error encoding dictionary: %v", http.StatusInternalServerError)
 			return
 		}
-	} else {
+	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 }
 
-func GetRandomDict() []string {
+func getRandomDict() []string {
 	fourLetterWords := [25]string{"curl", "etas", "pleb", "tabi", "soup", "tune", "kure", "tech",
 		"suez", "veld", "bash", "cole", "peek", "kill", "tarn", "momi", "flee", "cone",
 		"cham", "land", "amok", "ship", "maim", "bird", "prig"}
@@ -165,7 +174,7 @@ func GetRandomDict() []string {
 		}
 	}
 	perm = rand.Perm(20)
-	for i, _ := range perm {
+	for i := range perm {
 		randDictionary = append(randDictionary, dictionary[i])
 	}
 	return randDictionary
