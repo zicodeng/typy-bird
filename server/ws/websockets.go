@@ -33,7 +33,7 @@ func NewWebSocketsHandler(notifer *Notifier) *WebSocketsHandler {
 func (wsh *WebSocketsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsh.upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error upgrading websocker: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("error upgrading websocket: %v", err), http.StatusInternalServerError)
 		return
 	}
 	if len(wsh.notifier.clients) != maxPlayers {

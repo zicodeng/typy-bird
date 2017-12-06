@@ -40,16 +40,14 @@ func main() {
 	mux.HandleFunc("/typie", context.TypieHandler)
 	//GET for dictionary words
 	mux.HandleFunc("/dictionary", context.DictHandler)
-	//PATCH for updating typie records
+	//GET for retrieving specific bird, PATCH for updating typie records
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
+	//PATCH for updating typie positions
+	mux.HandleFunc("/typie/position", context.PositionHandler)
 	//GET for gameroom
 	mux.HandleFunc("/gameroom", context.GameroomHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
-	//sending postions to players
-	mux.Handle("/position", ws.NewPositionHandler(notifier, context))
-	//sending leader stats to waiting players
-	mux.Handle("/leaderboard", ws.NewLeaderBoardHandler(notifier, context))
 
 	corsMux := handlers.NewCORSHandler(mux)
 
