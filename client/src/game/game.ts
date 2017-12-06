@@ -76,8 +76,8 @@ export const Init = (websocket: WebSocket): void => {
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
-		console.log(event.data);
-		const gameRoom = event.data;
+		const gameRoom = JSON.parse(event.data);
+		console.log(gameRoom);
 
 		// state.entities.typies.push(new Typie(state.spritesheet, 50, posY));
 		// state.entities.hearts.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
