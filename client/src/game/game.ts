@@ -23,8 +23,13 @@ export interface GameState {
 	entities: any;
 }
 
+interface GameRoom {
+	available: boolean;
+	players: any;
+}
+
 // Initialize the game.
-export const Init = (websocket: WebSocket): void => {
+export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	const bgCanvas = <HTMLCanvasElement>document.getElementById('bg-canvas');
 	const fgCanvas = <HTMLCanvasElement>document.getElementById('fg-canvas');
 
@@ -72,6 +77,9 @@ export const Init = (websocket: WebSocket): void => {
 
 	state.entities.typies = [];
 	state.entities.hearts = [];
+
+	// Load game room first.
+	console.log('init', initGameRoom);
 
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
