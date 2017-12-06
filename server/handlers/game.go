@@ -316,8 +316,8 @@ func getRandomDict() []string {
 		}
 	}
 	perm = rand.Perm(20)
-	for i := range perm {
-		randDictionary = append(randDictionary, dictionary[i])
+	for _, v := range perm {
+		randDictionary = append(randDictionary, dictionary[v])
 	}
 	return randDictionary
 }
