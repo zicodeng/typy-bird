@@ -135,8 +135,8 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 		}
 
 		wsPayload := struct {
-			Type    string
-			Payload *models.LeaderBoard
+			Type    string              `json:"type,omitempty"`
+			Payload *models.LeaderBoard `json:"payload,omitempty"`
 		}{
 			"leaderboard",
 			leaderBoard,
@@ -189,8 +189,8 @@ func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request)
 		}
 
 		wsPayload := struct {
-			Type    string
-			Payload *models.GameRoom
+			Type    string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
 			"position",
 			c.GameRoom,
@@ -252,8 +252,8 @@ func (c *HandlerContext) ReadyHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		wsPayload := struct {
-			Type    string
-			Payload *models.GameRoom
+			Type    string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
 			"ready",
 			c.GameRoom,
