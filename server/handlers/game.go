@@ -137,8 +137,8 @@ func GetRandomDict() []string {
 		"stuffed","taussig","narvez","seattle","millier","leister","arduous","ransome",
 		"luzerne","bunches","bighead"}
 	dictArray := [4][25]string{fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords}
-	dictionary := make([]string, 20)
-	randDictionary := make([]string, len(dictionary))
+	dictionary := []string{}
+	randDictionary := []string{}
 	perm := rand.Perm(25)
 	for i := 0; i < len(dictArray); i++ {
 		for index, value := range perm {
@@ -149,8 +149,8 @@ func GetRandomDict() []string {
 		}
 	}
 	perm = rand.Perm(20)
-	for i, v := range perm {
-		randDictionary[v] = dictionary[i]
+	for i, _ := range perm {
+		randDictionary = append(randDictionary, dictionary[i])
 	}
 	return randDictionary
 }
