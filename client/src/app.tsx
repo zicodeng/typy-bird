@@ -84,14 +84,9 @@ class App extends React.Component<any, any> {
 	// We are not really getting any response data back.
 	private fetchGameRoom = (): void => {
 		const url = `http://${this.getCurrentHost()}/position`;
-		axios
-			.get(url)
-			.then(res => {
-				console.log(res);
-			})
-			.catch(error => {
-				console.log(error);
-			});
+		axios.get(url).catch(error => {
+			console.log(error);
+		});
 	};
 
 	private getCurrentHost = (): string => {
