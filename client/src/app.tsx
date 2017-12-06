@@ -47,8 +47,9 @@ class App extends React.Component<any, any> {
 		// Fetch game state and store it locally.
 		const websocket = this.establishWebsocket();
 		websocket.addEventListener('message', event => {
+			const gameRoom = JSON.parse(event.data);
 			this.setState({
-				gameRoom: event.data
+				gameRoom: gameRoom
 			});
 		});
 		Game.Init(websocket);
