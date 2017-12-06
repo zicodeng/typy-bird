@@ -132,6 +132,7 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 		}
 	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
