@@ -1,11 +1,10 @@
 package handlers
 
 import (
-	"math/rand"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/info344-a17/typy-bird/server/models"
 	"gopkg.in/mgo.v2/bson"
@@ -23,12 +22,6 @@ func NewHandlerContext(gameRoom *models.GameRoom, typieStore *models.MongoStore)
 		GameRoom:   gameRoom,
 		TypieStore: typieStore,
 	}
-}
-
-//SessionState keeps track of current session information
-type SessionState struct {
-	SessionStart time.Time
-	TypieBird    *models.TypieBird
 }
 
 //TypieHandler handles methods for the /typie route
@@ -132,19 +125,19 @@ func (c *HandlerContext) DictHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRandomDict() []string {
-	fourLetterWords := [25]string{"curl", "etas","pleb","tabi","soup","tune","kure","tech",
-		"suez","veld","bash","cole","peek","kill","tarn","momi","flee","cone",
-		"cham","land","amok","ship","maim","bird","prig"}
-	fiveLetterWords := [25]string{"roost","gayly","ptain","unbid","umiac","kappa","festa","every",
-		"playa","olden","donna","godin","muzio","sauce","blink","cause","chirm","oriel","schwa",
-		"bogle","chick","dolin","loads","using","sweal"}
-	sixLetterWords := [25]string{"catton","khedah","untold","bhindi","decree","kinase","cohere",
-		"waffie","garter","bashan","roddie","stingo","dodger","chalet","contra","blanch",
-		"edwina","immesh","fulmar","saddle","finish","piggin","riches","dengue","mizzle",}
-	sevenLetterWords := [25]string{"unmined","rosario","ericoid","herbert","faraway","grimace",
-		"brioche","napless","deprive","inhered","plantin","outpour","whoosis","impanel",
-		"stuffed","taussig","narvez","seattle","millier","leister","arduous","ransome",
-		"luzerne","bunches","bighead"}
+	fourLetterWords := [25]string{"curl", "etas", "pleb", "tabi", "soup", "tune", "kure", "tech",
+		"suez", "veld", "bash", "cole", "peek", "kill", "tarn", "momi", "flee", "cone",
+		"cham", "land", "amok", "ship", "maim", "bird", "prig"}
+	fiveLetterWords := [25]string{"roost", "gayly", "ptain", "unbid", "umiac", "kappa", "festa", "every",
+		"playa", "olden", "donna", "godin", "muzio", "sauce", "blink", "cause", "chirm", "oriel", "schwa",
+		"bogle", "chick", "dolin", "loads", "using", "sweal"}
+	sixLetterWords := [25]string{"catton", "khedah", "untold", "bhindi", "decree", "kinase", "cohere",
+		"waffie", "garter", "bashan", "roddie", "stingo", "dodger", "chalet", "contra", "blanch",
+		"edwina", "immesh", "fulmar", "saddle", "finish", "piggin", "riches", "dengue", "mizzle"}
+	sevenLetterWords := [25]string{"unmined", "rosario", "ericoid", "herbert", "faraway", "grimace",
+		"brioche", "napless", "deprive", "inhered", "plantin", "outpour", "whoosis", "impanel",
+		"stuffed", "taussig", "narvez", "seattle", "millier", "leister", "arduous", "ransome",
+		"luzerne", "bunches", "bighead"}
 	dictArray := [4][25]string{fourLetterWords, fiveLetterWords, sixLetterWords, sevenLetterWords}
 	dictionary := []string{}
 	randDictionary := []string{}

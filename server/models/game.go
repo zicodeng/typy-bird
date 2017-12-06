@@ -9,6 +9,12 @@ import (
 //ErrTypieBirdNotPlayer is thrown when a typie bird with the given ID is not in the game room player struct
 var ErrTypieBirdNotPlayer = errors.New("typie bird does not exist in game room")
 
+//LeaderBoard represents highest scoring typie birds
+type LeaderBoard struct {
+	Leaders   []*TypieBird
+	Available bool
+}
+
 //GameRoom represents the room of players
 type GameRoom struct {
 	Players   []*TypieBird
