@@ -8,7 +8,7 @@ class Typing extends React.Component<any, any> {
 		super(props, context);
 
 		this.state = {
-			dictionary: ['Hello', 'World', 'How', 'Are', 'You'],
+			dictionary: null,
 			currentWordIndex: 0,
 			input: null
 		};
@@ -18,7 +18,29 @@ class Typing extends React.Component<any, any> {
 		return <div className="typing">{this.renderInputElem()}</div>;
 	}
 
-	private renderInputElem = (): JSX.Element => {
+	public componentWillMount() {
+		this.fetchDictionary();
+	}
+
+	private fetchDictionary = (): void => {
+		const url = `http://${this.props.getCurrentHost()}/dictionary`;
+		axios
+			.get(url)
+			.then(res => {
+				console.log(res.data);
+				this.setState({
+					dictionary: res.data
+				});
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
+	private renderInputElem = (): JSX.Element | null => {
+		if (!this.state.dictionary) {
+			return null;
+		}
 		if (this.props.playerState === 'ready') {
 			return (
 				<div>

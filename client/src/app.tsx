@@ -28,7 +28,10 @@ class App extends React.Component<any, any> {
 					<h1 className="counter">{this.state.counterVal}</h1>
 				) : null}
 				{this.checkPlayersState() && this.state.counterVal === 0 ? (
-					<Typing playerState={this.state.playerState} />
+					<Typing
+						playerState={this.state.playerState}
+						getCurrentHost={() => this.getCurrentHost()}
+					/>
 				) : null}
 				<canvas id="bg-canvas" />
 				<canvas id="fg-canvas" />
