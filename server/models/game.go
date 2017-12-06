@@ -115,7 +115,7 @@ func (room *GameRoom) IncrementPosition(typieBirdID bson.ObjectId) (*TypieBird, 
 func (room *GameRoom) ReadyUp(typieBirdID bson.ObjectId) (*TypieBird, error) {
 	for _, player := range room.Players {
 		if player.ID == typieBirdID {
-			player.IsReady = true
+			player.IsReady = !player.IsReady
 			return player, nil
 		}
 	}
