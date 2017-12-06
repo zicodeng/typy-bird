@@ -27,7 +27,6 @@ class Typing extends React.Component<any, any> {
 		axios
 			.get(url)
 			.then(res => {
-				console.log(res.data);
 				this.setState({
 					dictionary: res.data
 				});
@@ -68,26 +67,10 @@ class Typing extends React.Component<any, any> {
 		// update currentWordIndex by 1,
 		// and prompt the user with a new currentWord.
 		if (word === currentWord) {
-			console.log('Update Typie');
-
-			// const host = this.props.host;
-			// const sessionToken = this.props.sessionToken;
-			// const url = `https://${host}/v1/messages/${selectedMessage._id}`;
-			// axios
-			// 	.patch(url, message, {
-			// 		headers: {
-			// 			Authorization: sessionToken
-			// 		}
-			// 	})
-			// 	.then(res => {
-			// 		this.refs.messageBody['value'] = '';
-			// 		this.setState({
-			// 			messageMode: this.MESSAGE_MODE.CREATE
-			// 		});
-			// 	})
-			// 	.catch(error => {
-			// 		window.alert(error.response.data);
-			// 	});
+			const url = `http://${this.props.getCurrentHost()}/position`;
+			axios.patch(url).catch(error => {
+				console.log(error);
+			});
 
 			this.refs.word['value'] = '';
 			currentWordIndex++;
