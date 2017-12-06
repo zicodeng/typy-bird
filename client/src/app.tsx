@@ -85,6 +85,9 @@ class App extends React.Component<any, any> {
 						gameRoom: gameRoom
 					});
 				});
+				this.setState({
+					gameRoom: res.data
+				});
 				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
@@ -165,7 +168,18 @@ class App extends React.Component<any, any> {
 	};
 
 	private checkPlayersState = (): boolean => {
-		return true;
+		let result = true;
+		const gameRoom = this.state.gameRoom;
+		if (!gameRoom || !gameRoom.Players) {
+			return result;
+		}
+		gameRoom.Players.forEach(player => {
+			if (!player.isReady) {
+				result = false;
+				return;
+			}
+		});
+		return result;
 	};
 }
 
