@@ -21,7 +21,8 @@ func (nt *NewTypieBird) ToTypie() *TypieBird {
 type TypieBird struct {
 	ID       bson.ObjectId `json:"id" bson:"_id"`
 	UserName string        `json:"userName"`
-	Record   float32
+	Record   float32       `json:"record"`
+	IsReady  bool          `json:"isReady"`
 }
 
 //Updates represents allowed updates to a user profile
