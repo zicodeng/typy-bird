@@ -42,6 +42,8 @@ func main() {
 	mux.HandleFunc("/dictionary", context.DictHandler)
 	//PATCH for updating typie records
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
+	//GET for gameroom
+	mux.HandleFunc("/gameroom", context.GameroomHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
 	//sending postions to players
