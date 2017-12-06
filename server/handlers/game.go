@@ -12,7 +12,6 @@ import (
 
 //HandlerContext keeps track of database information
 type HandlerContext struct {
-	SessionKey   string
 	TypieStore   *models.MongoStore
 }
 
