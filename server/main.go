@@ -4,14 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
-
-	"github.com/go-redis/redis"
 	"github.com/info344-a17/typy-bird/server/handlers"
 	"github.com/info344-a17/typy-bird/server/models"
-	"github.com/info344-a17/typy-bird/server/sessions"
 	"github.com/info344-a17/typy-bird/server/ws"
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 )
 
 func main() {
@@ -19,22 +15,6 @@ func main() {
 	if len(addr) == 0 {
 		addr = ":80"
 	}
-
-	//Session Initialization
-	sessionKey := os.Getenv("SESSIONKEY")
-	if len(sessionKey) == 0 {
-		log.Fatal("the SESSIONKEY was not set")
-	}
-	redisAddr := os.Getenv("REDISADDR")
-	if len(redisAddr) == 0 {
-		log.Fatal("the REDISADDR was not set")
-	}
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
-		Password: "",
-		DB:       0,
-	})
-	redisStore := sessions.NewRedisStore(redisClient, time.Minute*15)
 
 	//MongoDB Initialization
 	dbAddr := os.Getenv("DBADDR")
@@ -55,8 +35,11 @@ func main() {
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 
-	//POST,GET,PATCH,DELETE for typies
+	//POST for creating new typies
 	mux.HandleFunc("/typie", context.TypieHandler)
+	//GET for dictionary words
+	mux.HandleFunc("/dictionary", context.DictHandler)
+  //PATCH for updating typie records
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", ws.NewWebSocketsHandler(notifier))
