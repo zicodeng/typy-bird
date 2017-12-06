@@ -4,6 +4,9 @@ import { EntitiesInit } from './entities';
 import { RenderInit, RenderUpdate } from 'game/render';
 import { AnimUpdate } from './anim';
 
+import Typie from './entities/typie';
+import Heart from './entities/heart';
+
 const Spritesheet = require('spritesheet/game.png');
 
 interface GameCanvas {
@@ -21,7 +24,7 @@ export interface GameState {
 }
 
 // Initialize the game.
-export const Init = (): void => {
+export const Init = (websocket: WebSocket): void => {
 	const bgCanvas = <HTMLCanvasElement>document.getElementById('bg-canvas');
 	const fgCanvas = <HTMLCanvasElement>document.getElementById('fg-canvas');
 
@@ -66,6 +69,20 @@ export const Init = (): void => {
 		animFrame: 0,
 		entities: {}
 	};
+
+	state.entities.typies = [];
+	state.entities.hearts = [];
+
+	// Update game state based on the server's response.
+	websocket.addEventListener('message', event => {
+		// Change state that will get passed to update and render functions.
+		const gameRoom = JSON.parse(event.data);
+		console.log(gameRoom);
+
+		// state.entities.typies.push(new Typie(state.spritesheet, 50, posY));
+		// state.entities.hearts.push(new Heart(state.spritesheet, canvasWidth - 100, posY));
+	});
+
 	EntitiesInit(state);
 	RenderInit(state);
 
