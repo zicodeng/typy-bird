@@ -26,6 +26,7 @@ type TypieBird struct {
 	UserName string        `json:"userName"`
 	Record   float32       `json:"record"`
 	Position int           `json:"position"`
+	IsReady  bool          `json:"isReady"`
 }
 
 //Updates represents updates that can be made to a typie bird
