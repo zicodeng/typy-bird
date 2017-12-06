@@ -43,7 +43,7 @@ func main() {
 	//GET for retrieving specific bird, PATCH for updating typie records
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
 	//PATCH for updating typie positions
-	mux.HandleFunc("/typie/me", context.PositionHandler)
+	mux.HandleFunc("/typie/position", context.PositionHandler)
 	//GET for gameroom
 	mux.HandleFunc("/gameroom", context.GameroomHandler)
 	//upgrading to websockets
