@@ -79,8 +79,8 @@ func (room *GameRoom) GetByID(typieBirdID bson.ObjectId) (*TypieBird, error) {
 	return nil, ErrTypieBirdNotPlayer
 }
 
-//DeleteByID removes the typie bird with `typieBirdID` from the game room
-func (room *GameRoom) DeleteByID(typieBirdID bson.ObjectId) error {
+//Delete removes the typie bird with `typieBirdID` from the game room
+func (room *GameRoom) Delete(typieBirdID bson.ObjectId) error {
 	for i := 0; i < len(room.Players); i++ {
 		if room.Players[i].ID == typieBirdID {
 			room.Players = append(room.Players[:i], room.Players[i+1:]...)
@@ -88,4 +88,15 @@ func (room *GameRoom) DeleteByID(typieBirdID bson.ObjectId) error {
 		}
 	}
 	return ErrTypieBirdNotPlayer
+}
+
+//IncrementPosition increments the position of the given bird by one step
+func (room *GameRoom) IncrementPosition(typieBirdID bson.ObjectId) (*TypieBird, error) {
+	for _, player := range room.Players {
+		if player.ID == typieBirdID {
+			player.Position = player.Position + 1
+			return player, nil
+		}
+	}
+	return nil, ErrTypieBirdNotPlayer
 }

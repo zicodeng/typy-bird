@@ -98,7 +98,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	case "DELETE":
 		//remove typie bird from game room
-		c.GameRoom.DeleteByID(typieBirdID)
+		c.GameRoom.Delete(typieBirdID)
 
 		//respond to client
 		w.Write([]byte("game ended for player\n"))

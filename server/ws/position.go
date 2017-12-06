@@ -22,11 +22,19 @@ func NewPositionHandler(notifier *Notifier, context *handlers.HandlerContext) *P
 
 //ServeHTTP handles HTTP requests for the UpdateHandler
 func (ph *PositionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//check current bird is player (authorize)
+	//get ID of current typie bird
 	queryParams := r.URL.Query()
 	typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+
+	//check current bird is a player (authorize)
 	if _, err := ph.context.GameRoom.GetByID(typieBirdID); err != nil {
 		http.Error(w, fmt.Sprintf("error getting typie bird: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	//update position of typie bird
+	if _, err := ph.context.GameRoom.IncrementPosition(typieBirdID); err != nil {
+		http.Error(w, fmt.Sprintf("error updating typie bird position: %v", err), http.StatusInternalServerError)
 		return
 	}
 
