@@ -17,22 +17,9 @@ export ADDR=localhost:3000
 
 export SESSIONKEY="secret"
 
-export REDISADDR=$localhost:6379
 export DBADDR=$localhost:27017
 
-export REDIS_CONTAINER=redis-server
 export MONGO_CONTAINER=mongo-server
-
-if [ "$(docker ps -aq --filter name=$REDIS_CONTAINER)" ]; then
-    docker rm -f $REDIS_CONTAINER
-fi
-
-# Run Redis Docker container.
-docker run \
--d \
---name $REDIS_CONTAINER \
--p 6379:6379 \
-redis
 
 if [ "$(docker ps -aq --filter name=$MONGO_CONTAINER)" ]; then
     docker rm -f $MONGO_CONTAINER

@@ -4,14 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
-
-	"github.com/go-redis/redis"
 	"github.com/info344-a17/typy-bird/server/handlers"
 	"github.com/info344-a17/typy-bird/server/models"
-	"github.com/info344-a17/typy-bird/server/sessions"
 	"github.com/info344-a17/typy-bird/server/ws"
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 )
 
 func main() {
@@ -25,16 +21,6 @@ func main() {
 	if len(sessionKey) == 0 {
 		log.Fatal("the SESSIONKEY was not set")
 	}
-	redisAddr := os.Getenv("REDISADDR")
-	if len(redisAddr) == 0 {
-		log.Fatal("the REDISADDR was not set")
-	}
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
-		Password: "",
-		DB:       0,
-	})
-	redisStore := sessions.NewRedisStore(redisClient, time.Minute*15)
 
 	//MongoDB Initialization
 	dbAddr := os.Getenv("DBADDR")
@@ -48,7 +34,7 @@ func main() {
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
 
 	//Initialize handler stuff
-	context := handlers.NewHandlerContext(sessionKey, redisStore, typieStore)
+	context := handlers.NewHandlerContext(sessionKey, typieStore)
 	notifier := ws.NewNotifier()
 	mux := http.NewServeMux()
 

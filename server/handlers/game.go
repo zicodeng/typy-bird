@@ -8,21 +8,18 @@ import (
 	"time"
 
 	"github.com/info344-a17/typy-bird/server/models"
-	"github.com/info344-a17/typy-bird/server/sessions"
 )
 
 //HandlerContext keeps track of database information
 type HandlerContext struct {
 	SessionKey   string
-	SessionStore sessions.Store
 	TypieStore   *models.MongoStore
 }
 
 //NewHandlerContext creates a new instance of a context struct to be used by a handler
-func NewHandlerContext(key string, sessionStore sessions.Store, typieStore *models.MongoStore) *HandlerContext {
+func NewHandlerContext(key string, typieStore *models.MongoStore) *HandlerContext {
 	return &HandlerContext{
 		SessionKey:   key,
-		SessionStore: sessionStore,
 		TypieStore:   typieStore,
 	}
 }
