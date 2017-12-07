@@ -32,13 +32,14 @@ class Index extends React.Component<any, any> {
 	public render() {
 		if (localStorage.getItem('TypieID')) {
 			const typieID = localStorage.getItem('TypieID');
+			if (typieID) {
+				const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
+				axios.delete(url).catch(error => {
+					console.log(error);
+				});
 
-			const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
-			axios.delete(url).catch(error => {
-				console.log(error);
-			});
-
-			localStorage.clear();
+				localStorage.clear();
+			}
 		}
 		return (
 			<div className="container">
@@ -73,6 +74,7 @@ class Index extends React.Component<any, any> {
 		});
 		websocket.addEventListener('message', event => {
 			const data = JSON.parse(event.data);
+			console.log(data);
 			switch (data.type) {
 				case 'Leaderboard':
 					this.setState({

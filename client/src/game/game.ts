@@ -117,26 +117,17 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'Position':
-				let isGameEnded = true;
 				gameRoom.players.forEach(player => {
 					state.entities.typies.forEach(typie => {
 						if (player.id === typie.id) {
 							typie.targetX = calcPos(player.position);
 							if (player.position === 20) {
-								reachFinishLine(state, player.id);
+								reachFinishLine(state, gameRoom, player.id);
+								typie.currentState = typie.states.standing;
 							}
-						}
-						if (player.position !== 20) {
-							isGameEnded = false;
-						}
-						if (player.position === 20) {
-							typie.currentState = typie.states.standing;
 						}
 					});
 				});
-				if (isGameEnded) {
-					endGame(state);
-				}
 				break;
 
 			case 'GameStart':
@@ -148,8 +139,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 		}
 	});
-
-	console.log(state.entities.typies);
 
 	EntitiesInit(state);
 
@@ -210,15 +199,28 @@ const calcPos = (pos: number) => {
 	return canvasWidth / 20 * pos;
 };
 
-const reachFinishLine = (state: GameState, playerID: number): void => {
+const reachFinishLine = (state: GameState, gameRoom: GameRoom, playerID: number): void => {
 	const url = `http://${getCurrentHost()}/typie/me?auth=${playerID}`;
 	// Send this player's record to server.
 	const record = {
 		record: (Date.now() - state.startTime) / 1000
 	};
-	axios.patch(url, record).catch(error => {
-		console.log(error.response.data);
-	});
+	axios
+		.patch(url, record)
+		.then(res => {
+			let isGameEnded = true;
+			gameRoom.players.forEach(player => {
+				if (player.position !== 20) {
+					isGameEnded = false;
+				}
+			});
+			if (isGameEnded) {
+				endGame(state);
+			}
+		})
+		.catch(error => {
+			console.log(error.response.data);
+		});
 };
 
 const endGame = (state: GameState) => {
