@@ -225,6 +225,8 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	case "POST":
+		c.GameRoom.Available = false
+
 		startTime := time.Now()
 
 		wsPayload := struct {
