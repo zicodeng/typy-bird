@@ -40,20 +40,6 @@ class Index extends React.Component<any, any> {
 
 			localStorage.clear();
 		}
-		var button;
-		if (this.state.available) {
-			button = (
-				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
-					PLAY
-				</button>
-			);
-		} else {
-			button = (
-				<button disabled={true} onClick={e => this.postTypie()}>
-					PLAY
-				</button>
-			);
-		}
 		return (
 			<div className="container">
 				<h1 className="greeting">Hello, New Typies!</h1>
@@ -62,7 +48,7 @@ class Index extends React.Component<any, any> {
 					{this.state.available ? <span>Available</span> : <span>Unavailable</span>}
 				</h4>
 				<input type="text" ref="username" id="username" placeholder="Username" />
-				{button}
+				{this.renderButtons()}
 				<h4>History Records</h4>
 				{this.renderTable()}
 			</div>
@@ -106,6 +92,18 @@ class Index extends React.Component<any, any> {
 			}
 		});
 	}
+
+	private renderButtons = (): JSX.Element => {
+		if (this.state.available) {
+			return (
+				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
+					PLAY
+				</button>
+			);
+		} else {
+			return <button>WAIT</button>;
+		}
+	};
 
 	private renderTable = (): JSX.Element => {
 		const thead = (
