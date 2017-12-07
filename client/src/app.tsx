@@ -41,7 +41,7 @@ class App extends React.Component<any, any> {
 	}
 
 	public componentWillMount() {
-		// this.fetchGameRoom();
+		this.fetchGameRoom();
 		this.fetchPlayer();
 	}
 
@@ -91,14 +91,16 @@ class App extends React.Component<any, any> {
 						gameRoom: gameRoom
 					});
 				});
+
+				// Fetch the most recent game room
+				// if the player just joins the game or refresh the page.
 				this.setState({
 					gameRoom: res.data
 				});
-				console.log(res.data);
 				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
-				console.log(error.response.data);
+				console.log(error);
 			});
 	};
 
@@ -114,10 +116,11 @@ class App extends React.Component<any, any> {
 				this.setState({
 					player: res.data
 				});
-				console.log(res);
 			})
 			.catch(error => {
 				console.log(error.response.data);
+				localStorage.removeItem('TypieID');
+				window.location.replace('index.html');
 			});
 	};
 
