@@ -81,12 +81,26 @@ class App extends React.Component<any, any> {
 		websocket.addEventListener('message', event => {
 			const data = JSON.parse(event.data);
 			const gameRoom = data.payload;
-			console.log(data);
 			switch (data.type) {
 				case 'Ready':
 					this.setState({
 						gameRoom: gameRoom
 					});
+					// If all players are ready, start the game.
+					if (this.checkPlayersState()) {
+						let counterVal = this.state.counterVal;
+						const counter = setInterval(() => {
+							if (counterVal !== 0) {
+								counterVal--;
+								this.setState({
+									counterVal: counterVal
+								});
+							}
+						}, 1000);
+						this.setState({
+							counter: counter
+						});
+					}
 					break;
 
 				default:
@@ -171,28 +185,9 @@ class App extends React.Component<any, any> {
 		}
 		// Update server.
 		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
-		axios
-			.patch(url)
-			.then(res => {
-				// If all players are ready, start the game.
-				if (this.checkPlayersState()) {
-					let counterVal = this.state.counterVal;
-					const counter = setInterval(() => {
-						if (counterVal !== 0) {
-							counterVal--;
-							this.setState({
-								counterVal: counterVal
-							});
-						}
-					}, 1000);
-					this.setState({
-						counter: counter
-					});
-				}
-			})
-			.catch(error => {
-				console.log(error.response.data);
-			});
+		axios.patch(url).catch(error => {
+			console.log(error.response.data);
+		});
 	};
 
 	private handleClickCancel = (): void => {
@@ -208,14 +203,9 @@ class App extends React.Component<any, any> {
 		}
 		// Update server.
 		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
-		axios
-			.patch(url)
-			.then(res => {
-				console.log(res.data);
-			})
-			.catch(error => {
-				console.log(error.response.data);
-			});
+		axios.patch(url).catch(error => {
+			console.log(error.response.data);
+		});
 	};
 
 	private checkPlayersState = (): boolean => {
