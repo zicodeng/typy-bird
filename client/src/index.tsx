@@ -121,7 +121,6 @@ class Index extends React.Component<any, any> {
 
 	private postTypie = () => {
 		this.setState({ disabled: true });
-		console.log('fuck');
 		let username = this.refs.username['value'].trim();
 		if (!username) {
 			return;
