@@ -6,11 +6,13 @@ class Typie implements Entity {
 	private height = 50;
 
 	public type: string;
+	public id: number;
 	public sprite: Sprite;
 	public targetX: number;
 	public targetY: number;
 	public targetWidth: number;
 	public targetHeight: number;
+	public isReady: boolean;
 
 	public initTargetX;
 	public initTargetY;
@@ -24,16 +26,20 @@ class Typie implements Entity {
 
 	constructor(
 		spritesheet: HTMLImageElement,
+		id: number,
 		targetX: number,
 		targetY: number,
 		targetWidth: number = 70,
-		targetHeight: number = 50
+		targetHeight: number = 50,
+		isReady: boolean = false
 	) {
 		this.type = 'Typie';
+		this.id = id;
 		this.targetX = targetX;
 		this.targetY = targetY;
 		this.targetWidth = targetWidth;
 		this.targetHeight = targetHeight;
+		this.isReady = isReady;
 
 		this.initTargetX = targetX;
 		this.initTargetY = targetY;
@@ -91,7 +97,7 @@ class Typie implements Entity {
 		};
 
 		this.sprite = this.spriteAnims.stand;
-		this.currentState = this.states.moving;
+		this.currentState = this.states.standing;
 	}
 }
 

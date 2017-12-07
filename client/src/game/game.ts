@@ -7,6 +7,8 @@ import { AnimUpdate } from './anim';
 import Typie from './entities/typie';
 import Heart from './entities/heart';
 
+import axios from 'axios';
+
 const Spritesheet = require('spritesheet/game.png');
 
 interface GameCanvas {
@@ -17,6 +19,7 @@ interface GameCanvas {
 }
 
 export interface GameState {
+	startTime: number;
 	spritesheet: HTMLImageElement;
 	canvas: GameCanvas;
 	animFrame: number;
@@ -24,8 +27,8 @@ export interface GameState {
 }
 
 interface GameRoom {
-	Available: boolean;
-	Players: any;
+	available: boolean;
+	players: any;
 }
 
 // Initialize the game.
@@ -69,6 +72,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	spritesheet.src = Spritesheet;
 	// Initialize game state.
 	const state: GameState = {
+		startTime: 0,
 		canvas: canvas,
 		spritesheet: spritesheet,
 		animFrame: 0,
@@ -79,21 +83,73 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	state.entities.hearts = [];
 
 	// Load players in current game room first.
-	console.log('init', initGameRoom);
-	initGameRoom.Players.forEach((player, i) => {
-		renderTypie(state, i);
+	initGameRoom.players.forEach((player, i) => {
+		renderTypie(state, player.id, i);
 	});
 
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
-		const gameRoom = JSON.parse(event.data);
-		// If this data we received is related to creating a new Typie.
-		renderTypie(state, gameRoom.Players.length);
+		const data = JSON.parse(event.data);
+		const gameRoom = data.payload;
+		console.log(gameRoom);
+		switch (data.type) {
+			case 'Ready':
+				gameRoom.players.forEach(player => {
+					state.entities.typies.forEach(typie => {
+						if (player.id === typie.id) {
+							if (player.isReady) {
+								typie.isReady = true;
+								typie.currentState = typie.states.moving;
+							} else {
+								typie.isReady = false;
+								typie.currentState = typie.states.standing;
+							}
+						}
+					});
+				});
+				break;
+
+			case 'NewTypie':
+				const playerID = data.players[gameRoom.players.length].ID;
+				// If this data we received is related to creating a new Typie.
+				renderTypie(state, playerID, gameRoom.players.length);
+				break;
+
+			case 'Position':
+				let isGameEnded = true;
+				gameRoom.players.forEach(player => {
+					state.entities.typies.forEach(typie => {
+						if (player.id === typie.id) {
+							typie.targetX = calcPos(player.position);
+							if (player.position === 20) {
+								reachFinishLine(state, player.id);
+							}
+						}
+						if (player.position !== 20) {
+							isGameEnded = false;
+						}
+					});
+				});
+				if (isGameEnded) {
+					console.log('game ended');
+					endGame();
+				}
+				break;
+
+			case 'GameStart':
+				const startTime = data.startTime;
+				state.startTime = Date.parse(startTime);
+				break;
+
+			default:
+				break;
+		}
 	});
 
+	console.log(state.entities.typies);
+
 	EntitiesInit(state);
-	RenderInit(state);
 
 	run(state);
 };
@@ -118,9 +174,13 @@ const update = (state: GameState): void => {
 
 const render = (state: GameState): void => {
 	RenderUpdate(state);
+	RenderInit(state);
 };
 
-const renderTypie = (state: GameState, i: number): void => {
+const leftMargin = 50;
+const rightMargin = 100;
+
+const renderTypie = (state: GameState, playerID: number, i: number): void => {
 	const maxPlayer = 4;
 	const canvasWidth = window.innerWidth;
 	const canvasHeight = window.innerHeight;
@@ -128,15 +188,50 @@ const renderTypie = (state: GameState, i: number): void => {
 	state.entities.typies.push(
 		new Typie(
 			state.spritesheet,
-			50,
+			playerID,
+			leftMargin,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)
 	);
 	state.entities.hearts.push(
 		new Heart(
 			state.spritesheet,
-			canvasWidth - 100,
+			canvasWidth - rightMargin,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)
 	);
+};
+
+const calcPos = (pos: number) => {
+	const canvasWidth = window.innerWidth - leftMargin - rightMargin;
+	return canvasWidth / 20 * pos;
+};
+
+const reachFinishLine = (state: GameState, playerID: number): void => {
+	const url = `http://${getCurrentHost()}/typie/me?auth=${playerID}`;
+	// Send this player's record to server.
+	const record = {
+		record: (Date.now() - state.startTime) / 1000
+	};
+	axios.patch(url, record).catch(error => {
+		console.log(error.response.data);
+	});
+};
+
+const endGame = () => {
+	const url = `http://${getCurrentHost()}/gameroom`;
+	axios.post(url).catch(err => {
+		console.log(err);
+	});
+	window.location.replace('index.html');
+};
+
+const getCurrentHost = (): string => {
+	let host: string;
+	if (window.location.hostname === 'typy-bird.zicodeng.me') {
+		host = 'typy-bird-api.zicodeng.me';
+	} else {
+		host = 'localhost:3000';
+	}
+	return host;
 };

@@ -172,7 +172,7 @@ func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request)
 	case "PATCH":
 		//get ID of current typie bird
 		queryParams := r.URL.Query()
-		typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+		typieBirdID := bson.ObjectIdHex(queryParams.Get("auth"))
 
 		//check current bird is a player in the game room (authorize)
 		if _, err := c.GameRoom.GetByID(typieBirdID); err != nil {
@@ -254,7 +254,7 @@ func (c *HandlerContext) ReadyHandler(w http.ResponseWriter, r *http.Request) {
 	case "PATCH":
 		//get ID of current typie bird
 		queryParams := r.URL.Query()
-		typieBirdID := bson.ObjectId(queryParams.Get("auth"))
+		typieBirdID := bson.ObjectIdHex(queryParams.Get("auth"))
 
 		//check current bird is a player in the game room (authorize)
 		if _, err := c.GameRoom.GetByID(typieBirdID); err != nil {

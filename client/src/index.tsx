@@ -118,14 +118,13 @@ class Index extends React.Component<any, any> {
 		this.setState({ disabled: true});
 		console.log("fuck");
 		let username = this.refs.username['value'].trim();
-		let typie = {
-			userName: ''
-		};
 		if (!username) {
 			return;
 		}
-		typie.userName = username;
 
+		let typie = {
+			userName: username
+		};
 		const url = `http://${this.getCurrentHost()}/typie`;
 		axios
 			.post(url, typie)
