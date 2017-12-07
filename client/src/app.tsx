@@ -86,6 +86,7 @@ class App extends React.Component<any, any> {
 				const websocket = this.establishWebsocket();
 				websocket.addEventListener('message', event => {
 					const gameRoom = JSON.parse(event.data);
+					console.log(gameRoom);
 					this.setState({
 						gameRoom: gameRoom
 					});
@@ -148,6 +149,22 @@ class App extends React.Component<any, any> {
 		this.setState({
 			playerState: 'ready'
 		});
+
+		const typieID = localStorage.getItem('TypieID');
+		if (!typieID) {
+			return;
+		}
+		// Update server.
+		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
+		axios
+			.patch(url)
+			.then(res => {
+				console.log(res.data);
+			})
+			.catch(error => {
+				console.log(error);
+			});
+
 		// If all players are ready, start the game.
 		if (this.checkPlayersState()) {
 			let counterVal = this.state.counterVal;
@@ -172,6 +189,20 @@ class App extends React.Component<any, any> {
 			playerState: 'waiting',
 			counterVal: 3
 		});
+		const typieID = localStorage.getItem('TypieID');
+		if (!typieID) {
+			return;
+		}
+		// Update server.
+		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
+		axios
+			.patch(url)
+			.then(res => {
+				console.log(res.data);
+			})
+			.catch(error => {
+				console.log(error);
+			});
 	};
 
 	private checkPlayersState = (): boolean => {
