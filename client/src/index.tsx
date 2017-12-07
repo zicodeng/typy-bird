@@ -49,6 +49,12 @@ class Index extends React.Component<any, any> {
 				<h1>Hello, New Typies</h1>
 				<input type="text" ref="username" id="username" />
 				{button}
+				<h4>
+					{' '}
+					{this.state.available
+						? 'Game Room Status: Available'
+						: 'Game Room Status: Unavailable'}{' '}
+				</h4>
 				{this.renderTable()}
 			</div>
 		);
@@ -86,13 +92,6 @@ class Index extends React.Component<any, any> {
 	private renderTable = (): JSX.Element => {
 		const thead = (
 			<thead>
-				<tr>
-					<td>
-						<h3>
-							{this.state.available ? 'Gameroom: Available' : 'Gameroom: Unavailable'}
-						</h3>
-					</td>
-				</tr>
 				<tr>
 					<th>Rank</th>
 					<th>Username</th>
