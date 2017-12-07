@@ -30,31 +30,16 @@ class Index extends React.Component<any, any> {
 	};
 
 	public render() {
-		if (localStorage.getItem("TypieID")) {
+		if (localStorage.getItem('TypieID')) {
 			const typieID = localStorage.getItem('TypieID');
-
-			const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
-			axios
-				.delete(url)
-				.catch(error => {
+			if (typieID) {
+				const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
+				axios.delete(url).catch(error => {
 					console.log(error);
 				});
 
-			localStorage.clear()
-		}
-		var button;
-		if (this.state.available) {
-			button = (
-				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
-					PLAY
-				</button>
-			);
-		} else {
-			button = (
-				<button disabled={true} onClick={e => this.postTypie()}>
-					PLAY
-				</button>
-			);
+				localStorage.clear();
+			}
 		}
 		return (
 			<div className="container">
@@ -64,7 +49,7 @@ class Index extends React.Component<any, any> {
 					{this.state.available ? <span>Available</span> : <span>Unavailable</span>}
 				</h4>
 				<input type="text" ref="username" id="username" placeholder="Username" />
-				{button}
+				{this.renderButtons()}
 				<h4>History Records</h4>
 				{this.renderTable()}
 			</div>
@@ -88,17 +73,45 @@ class Index extends React.Component<any, any> {
 			console.log('Websocket connection closed');
 		});
 		websocket.addEventListener('message', event => {
-			const topScores = JSON.parse(event.data);
-			console.log(topScores);
-			if (topScores.type == 'Leaderboard') {
-				console.log(topScores.payload.available);
-				this.setState({
-					available: topScores.payload.available,
-					leaderboard: topScores.payload.leaders
-				});
+			const data = JSON.parse(event.data);
+			console.log(data);
+			switch (data.type) {
+				case 'Leaderboard':
+					this.setState({
+						available: data.payload.available,
+						leaderboard: data.payload.leaders
+					});
+					break;
+
+				case 'GameStart':
+					this.setState({
+						available: false
+					});
+					break;
+
+				case 'GameEnd':
+					this.setState({
+						available: true
+					});
+					break;
+
+				default:
+					break;
 			}
 		});
 	}
+
+	private renderButtons = (): JSX.Element => {
+		if (this.state.available) {
+			return (
+				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
+					PLAY
+				</button>
+			);
+		} else {
+			return <button>WAIT</button>;
+		}
+	};
 
 	private renderTable = (): JSX.Element => {
 		const thead = (

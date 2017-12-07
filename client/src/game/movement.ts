@@ -10,7 +10,6 @@ const typiesMovement = (state: GameState): void => {
 		if (typie.targetX > state.canvas.fgCanvas.width - 100) {
 			typie.velocityX = 0;
 			typie.targetX = state.canvas.fgCanvas.width - 100;
-			typie.currentState = typie.states.standing;
 		} else {
 			typie.currentState.movement(state);
 		}
