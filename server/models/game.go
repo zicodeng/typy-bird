@@ -11,14 +11,14 @@ var ErrTypieBirdNotPlayer = errors.New("typie bird does not exist in game room")
 
 //LeaderBoard represents highest scoring typie birds
 type LeaderBoard struct {
-	Leaders   []*TypieBird
-	Available bool
+	Leaders   []*TypieBird `json:"leaders,omitempty"`
+	Available bool         `json:"available,omitempty"`
 }
 
 //GameRoom represents the room of players
 type GameRoom struct {
-	Players   []*TypieBird
-	Available bool
+	Players   []*TypieBird `json:"players,omitempty"`
+	Available bool         `json:"available,omitempty"`
 }
 
 //NewTypieBird represents a creating a new player
