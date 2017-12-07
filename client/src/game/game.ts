@@ -222,7 +222,7 @@ const reachFinishLine = (state: GameState, playerID: number): void => {
 };
 
 const endGame = (state: GameState) => {
-	const url = `http://${getCurrentHost()}/gameroom`;
+	const url = `http://${getCurrentHost()}/end`;
 	axios.post(url).catch(err => {
 		console.log(err);
 	});

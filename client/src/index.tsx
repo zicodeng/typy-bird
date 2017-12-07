@@ -30,6 +30,18 @@ class Index extends React.Component<any, any> {
 	};
 
 	public render() {
+		if (localStorage.getItem("TypieID")) {
+			const typieID = localStorage.getItem('TypieID');
+
+			const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
+			axios
+				.delete(url)
+				.catch(error => {
+					console.log(error);
+				});
+
+			localStorage.clear()
+		}
 		var button;
 		if (this.state.available) {
 			button = (

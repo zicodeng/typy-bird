@@ -223,17 +223,87 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
 			return
 		}
+	case "DELETE":
+		//get ID of current typie bird
+		queryParams := r.URL.Query()
+		typieBirdID := bson.ObjectIdHex(queryParams.Get("auth"))
+
+		//check current bird is a player in the game room (authorize)
+		if _, err := c.GameRoom.GetByID(typieBirdID); err != nil {
+			http.Error(w, fmt.Sprintf("error getting typie bird: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		err := c.GameRoom.Delete(typieBirdID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error deleting bird from players: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		wsPayload := struct {
+			Type    string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
+		}{
+			"Position",
+			c.GameRoom,
+		}
+		//broadcast new gameroom state to client
+		payload, jsonErr := json.Marshal(wsPayload)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		c.Notifier.Notify(payload)
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//StartGameHandler starts a new game
+func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
 	case "POST":
-		c.GameRoom.Available = !c.GameRoom.Available
+		c.GameRoom.Available = false
 
 		startTime := time.Now()
 
 		wsPayload := struct {
-			Type      string    `json:"type,omitempty"`
+			Type    string    `json:"type,omitempty"`
 			StartTime time.Time `json:"startTime,omitempty"`
 		}{
 			"GameStart",
 			startTime,
+		}
+		//broadcast new gameroom state to client
+		payload, jsonErr := json.Marshal(wsPayload)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		c.Notifier.Notify(payload)
+	default:
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+//EndGameHandler ends the current game
+func (c *HandlerContext) EndGameHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		c.GameRoom.Available = true
+
+		for _, client := range c.GameRoom.Players {
+			c.GameRoom.Delete(client.ID)
+		}
+
+		wsPayload := struct {
+			Type     string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
+		}{
+			"GameEnd",
+			c.GameRoom,
 		}
 		//broadcast new gameroom state to client
 		payload, jsonErr := json.Marshal(wsPayload)

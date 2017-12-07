@@ -50,6 +50,10 @@ func main() {
 	mux.HandleFunc("/ready", context.ReadyHandler)
 	//GET for gameroom
 	mux.HandleFunc("/gameroom", context.GameroomHandler)
+	//POST for starting the game
+	mux.HandleFunc("/start", context.StartGameHandler)
+	//POST for ending the game and removing the players
+	mux.HandleFunc("/end", context.EndGameHandler)
 	//upgrading to websockets
 	mux.Handle("/ws", handlers.NewWebSocketsHandler(notifier, gameRoom))
 
