@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sync"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -19,6 +20,7 @@ type LeaderBoard struct {
 type GameRoom struct {
 	Players   []*TypieBird `json:"players,omitempty"`
 	Available bool         `json:"available,omitempty"`
+	mx        *sync.RWMutex
 }
 
 //NewTypieBird represents a creating a new player
@@ -52,6 +54,9 @@ func (nt *NewTypieBird) ToTypie() *TypieBird {
 
 //Update updates a typie bird's score
 func (room *GameRoom) Update(typieBirdID bson.ObjectId, updates *Updates) (*TypieBird, error) {
+	room.mx.Lock()
+	defer room.mx.Unlock()
+
 	for _, player := range room.Players {
 		if player.ID == typieBirdID {
 			player.Record = updates.Record
@@ -68,6 +73,10 @@ func (room *GameRoom) Add(bird *TypieBird) error {
 		return errors.New("gameroom full")
 	}
 
+	//protect with mutex
+	room.mx.Lock()
+	defer room.mx.Unlock()
+
 	//add typie bird to game room
 	room.Players = append(room.Players, bird)
 
@@ -81,6 +90,9 @@ func (room *GameRoom) Add(bird *TypieBird) error {
 
 //GetByID retrieves the typie bird with `typieBirdID` from the game room
 func (room *GameRoom) GetByID(typieBirdID bson.ObjectId) (*TypieBird, error) {
+	room.mx.RLock()
+	defer room.mx.RUnlock()
+
 	for _, player := range room.Players {
 		if player.ID == typieBirdID {
 			return player, nil
@@ -91,6 +103,9 @@ func (room *GameRoom) GetByID(typieBirdID bson.ObjectId) (*TypieBird, error) {
 
 //Delete removes the typie bird with `typieBirdID` from the game room
 func (room *GameRoom) Delete(typieBirdID bson.ObjectId) error {
+	room.mx.Lock()
+	defer room.mx.Unlock()
+
 	for i := 0; i < len(room.Players); i++ {
 		if room.Players[i].ID == typieBirdID {
 			room.Players = append(room.Players[:i], room.Players[i+1:]...)
@@ -102,6 +117,9 @@ func (room *GameRoom) Delete(typieBirdID bson.ObjectId) error {
 
 //IncrementPosition increments the position of the given bird by one step
 func (room *GameRoom) IncrementPosition(typieBirdID bson.ObjectId) (*TypieBird, error) {
+	room.mx.Lock()
+	defer room.mx.Unlock()
+
 	for _, player := range room.Players {
 		if player.ID == typieBirdID {
 			player.Position = player.Position + 1
@@ -113,6 +131,9 @@ func (room *GameRoom) IncrementPosition(typieBirdID bson.ObjectId) (*TypieBird, 
 
 //ReadyUp changes a bird's status from not ready to ready
 func (room *GameRoom) ReadyUp(typieBirdID bson.ObjectId) (*TypieBird, error) {
+	room.mx.Lock()
+	defer room.mx.Unlock()
+
 	for _, player := range room.Players {
 		if player.ID == typieBirdID {
 			player.IsReady = !player.IsReady
