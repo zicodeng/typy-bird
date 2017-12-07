@@ -7,6 +7,8 @@ import { AnimUpdate } from './anim';
 import Typie from './entities/typie';
 import Heart from './entities/heart';
 
+import axios from 'axios';
+
 const Spritesheet = require('spritesheet/game.png');
 
 interface GameCanvas {
@@ -17,6 +19,7 @@ interface GameCanvas {
 }
 
 export interface GameState {
+	startTime: number;
 	spritesheet: HTMLImageElement;
 	canvas: GameCanvas;
 	animFrame: number;
@@ -69,6 +72,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	spritesheet.src = Spritesheet;
 	// Initialize game state.
 	const state: GameState = {
+		startTime: 0,
 		canvas: canvas,
 		spritesheet: spritesheet,
 		animFrame: 0,
@@ -77,6 +81,8 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 	state.entities.typies = [];
 	state.entities.hearts = [];
+
+	console.log(initGameRoom);
 
 	// Load players in current game room first.
 	initGameRoom.players.forEach((player, i) => {
@@ -117,9 +123,17 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 					state.entities.typies.forEach(typie => {
 						if (player.id === typie.id) {
 							typie.targetX = calcPos(player.position);
+							if (player.position === 20) {
+								reachFinishLine(state, player.id);
+							}
 						}
 					});
 				});
+				break;
+
+			case 'GameStart':
+				const startTime = data.startTime;
+				state.startTime = Date.parse(startTime);
 				break;
 
 			default:
@@ -185,4 +199,25 @@ const renderTypie = (state: GameState, playerID: number, i: number): void => {
 const calcPos = (pos: number) => {
 	const canvasWidth = window.innerWidth - leftMargin - rightMargin;
 	return canvasWidth / 20 * pos;
+};
+
+const reachFinishLine = (state: GameState, playerID: number): void => {
+	const url = `http://${getCurrentHost()}/typie/me?auth=${playerID}`;
+	// Send this player's record to server.
+	const record = {
+		record: (Date.now() - state.startTime) / 1000
+	};
+	axios.patch(url, record).catch(error => {
+		console.log(error.response.data);
+	});
+};
+
+const getCurrentHost = (): string => {
+	let host: string;
+	if (window.location.hostname === 'typy-bird.zicodeng.me') {
+		host = 'typy-bird-api.zicodeng.me';
+	} else {
+		host = 'localhost:3000';
+	}
+	return host;
 };

@@ -99,7 +99,6 @@ func (n *Notifier) start() {
 }
 
 func (n *Notifier) removeClient(client *websocket.Conn) {
-	log.Println("removing a client")
 	client.Close()
 	for i, c := range n.clients {
 		if client == c {

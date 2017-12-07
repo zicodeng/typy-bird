@@ -51,8 +51,17 @@ class App extends React.Component<any, any> {
 		// and stop counter.
 		if (this.state.counterVal === 0) {
 			clearInterval(counter);
+			this.startGame();
 		}
 	}
+
+	// Inform the server that our game has started.
+	private startGame = (): void => {
+		const url = `http://${this.getCurrentHost()}/gameroom`;
+		axios.post(url).catch(err => {
+			console.log(err);
+		});
+	};
 
 	private establishWebsocket = (): WebSocket => {
 		const websocket = new WebSocket(`ws://${this.getCurrentHost()}/ws`);
