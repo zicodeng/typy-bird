@@ -19,7 +19,7 @@ interface GameCanvas {
 }
 
 export interface GameState {
-	startTime: number;
+	startTime: Date;
 	spritesheet: HTMLImageElement;
 	canvas: GameCanvas;
 	animFrame: number;
@@ -72,7 +72,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	spritesheet.src = Spritesheet;
 	// Initialize game state.
 	const state: GameState = {
-		startTime: 0,
+		startTime: new Date(),
 		canvas: canvas,
 		spritesheet: spritesheet,
 		animFrame: 0,
@@ -110,10 +110,10 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'NewTypie':
-				const playerID = gameRoom.players[gameRoom.players.length - 1].ID;
+				const playerID = gameRoom.players[gameRoom.players.length - 1].id;
 				const userName = gameRoom.players[gameRoom.players.length - 1].userName;
 				// If this data we received is related to creating a new Typie.
-				renderTypie(state, playerID, userName, gameRoom.players.length);
+				renderTypie(state, playerID, userName, gameRoom.players.length - 1);
 				break;
 
 			case 'Position':
@@ -121,8 +121,9 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 					state.entities.typies.forEach(typie => {
 						if (player.id === typie.id) {
 							typie.targetX = calcPos(player.position);
-							if (player.position === 20) {
+							if (player.position === 20 && !typie.isDone) {
 								reachFinishLine(state, gameRoom, player.id);
+								typie.isDone = true;
 								typie.currentState = typie.states.standing;
 							}
 						}
@@ -131,8 +132,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'GameStart':
-				const startTime = data.startTime;
-				state.startTime = Date.parse(startTime);
+				state.startTime = new Date(data.startTime);
 				break;
 
 			default:
@@ -203,8 +203,9 @@ const reachFinishLine = (state: GameState, gameRoom: GameRoom, playerID: number)
 	const url = `http://${getCurrentHost()}/typie/me?auth=${playerID}`;
 	// Send this player's record to server.
 	const record = {
-		record: (Date.now() - state.startTime) / 1000
+		record: (new Date().getTime() - state.startTime.getTime()) / 1000
 	};
+	console.log(new Date().getTime() / 1000, state.startTime.getTime() / 1000, record);
 	axios
 		.patch(url, record)
 		.then(res => {
