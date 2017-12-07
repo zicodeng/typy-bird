@@ -12,7 +12,9 @@ class App extends React.Component<any, any> {
 		super(props, context);
 
 		this.state = {
+			isGameInProgress: false,
 			playerState: 'waiting',
+			counter: null,
 			counterVal: 3,
 			gameRoom: null,
 			player: null
@@ -89,16 +91,15 @@ class App extends React.Component<any, any> {
 					// If all players are ready, start the game.
 					if (this.checkPlayersState()) {
 						let counterVal = this.state.counterVal;
-						const counter = setInterval(() => {
-							if (counterVal !== 0) {
-								counterVal--;
-								this.setState({
-									counterVal: counterVal
-								});
-							}
-						}, 1000);
 						this.setState({
-							counter: counter
+							counter: setInterval(() => {
+								if (counterVal !== 0) {
+									counterVal--;
+									this.setState({
+										counterVal: counterVal
+									});
+								}
+							}, 1000)
 						});
 					}
 					break;
@@ -158,7 +159,11 @@ class App extends React.Component<any, any> {
 		return host;
 	};
 
-	private renderButtons = (): JSX.Element => {
+	private renderButtons = (): JSX.Element | null => {
+		// Prevent players cancelling the game if it is already started;
+		if (this.state.counterVal === 0) {
+			return null;
+		}
 		const playerState = this.state.playerState;
 		if (playerState === 'waiting') {
 			return (

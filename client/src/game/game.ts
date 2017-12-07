@@ -92,7 +92,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 		// Change state that will get passed to update and render functions.
 		const data = JSON.parse(event.data);
 		const gameRoom = data.payload;
-		console.log(gameRoom);
 		switch (data.type) {
 			case 'Ready':
 				gameRoom.players.forEach(player => {
