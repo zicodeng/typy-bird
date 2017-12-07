@@ -15,7 +15,7 @@ class Index extends React.Component<any, any> {
 		};
 	}
 
-	private fetchTopScores= (): void => {
+	private fetchTopScores = (): void => {
 		const url = `http://${this.getCurrentHost()}/leaderboard`;
 		axios
 			.get(url)
@@ -32,15 +32,28 @@ class Index extends React.Component<any, any> {
 	public render() {
 		var button;
 		if (this.state.available) {
-			button = <button onClick={e => this.postTypie()} disabled={this.state.disabled}>PLAY</button>;
+			button = (
+				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
+					PLAY
+				</button>
+			);
 		} else {
-			button = <button disabled={true} onClick={e => this.postTypie()} >PLAY</button>;
+			button = (
+				<button disabled={true} onClick={e => this.postTypie()}>
+					PLAY
+				</button>
+			);
 		}
 		return (
-			<div>
-				<h1>Hello, New Typies</h1>
-				<input type="text" ref="username" id="username" />
+			<div className="container">
+				<h1 className="greeting">Hello, New Typies!</h1>
+				<h4 className="gameroom-status">
+					Game Room Status:&nbsp;
+					{this.state.available ? <span>Available</span> : <span>Unavailable</span>}
+				</h4>
+				<input type="text" ref="username" id="username" placeholder="Username" />
 				{button}
+				<h4>History Records</h4>
 				{this.renderTable()}
 			</div>
 		);
@@ -64,9 +77,9 @@ class Index extends React.Component<any, any> {
 		});
 		websocket.addEventListener('message', event => {
 			const topScores = JSON.parse(event.data);
-			console.log(topScores)
-			if (topScores.type == "Leaderboard")  {
-				console.log(topScores.payload.available)
+			console.log(topScores);
+			if (topScores.type == 'Leaderboard') {
+				console.log(topScores.payload.available);
 				this.setState({
 					available: topScores.payload.available,
 					leaderboard: topScores.payload.leaders
@@ -77,15 +90,7 @@ class Index extends React.Component<any, any> {
 
 	private renderTable = (): JSX.Element => {
 		const thead = (
-
 			<thead>
-				<tr>
-					<td>
-						<h3>
-							{this.state.available? "Gameroom: Available": "Gameroom: Unavailable"}
-						</h3>
-					</td>
-				</tr>
 				<tr>
 					<th>Rank</th>
 					<th>Username</th>
@@ -94,8 +99,7 @@ class Index extends React.Component<any, any> {
 			</thead>
 		);
 		var count = 0;
-		var scores = this.state.leaderboard
-		.map((leader) => {
+		var scores = this.state.leaderboard.map(leader => {
 			count++;
 			return (
 				<tr key={count}>
@@ -103,20 +107,20 @@ class Index extends React.Component<any, any> {
 					<td>{leader.userName}</td>
 					<td>{leader.record}</td>
 				</tr>
-			)
-		})
+			);
+		});
 
-		const tbody = (
-			<tbody>
-					{scores}
-			</tbody>
-		)
-		return <table>{thead}{tbody}</table>;
+		const tbody = <tbody>{scores}</tbody>;
+		return (
+			<table>
+				{thead}
+				{tbody}
+			</table>
+		);
 	};
 
 	private postTypie = () => {
-		this.setState({ disabled: true});
-		console.log("fuck");
+		this.setState({ disabled: true });
 		let username = this.refs.username['value'].trim();
 		if (!username) {
 			return;
