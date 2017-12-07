@@ -5,5 +5,12 @@
 	z-index: 99;
 	text-align: center;
 	left: 50%;
+	margin-top: -30px;
 	@include transform(translateX(-50%));
+	p {
+		font-size: 20px;
+	}
+	input {
+		margin-top: 10px;
+	}
 }
