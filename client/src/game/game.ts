@@ -81,16 +81,44 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	// Load players in current game room first.
 	console.log('init', initGameRoom);
 	initGameRoom.Players.forEach((player, i) => {
-		renderTypie(state, i);
+		renderTypie(state, player.id, i);
 	});
 
 	// Update game state based on the server's response.
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
-		const gameRoom = JSON.parse(event.data);
-		// If this data we received is related to creating a new Typie.
-		renderTypie(state, gameRoom.Players.length);
+		const data = JSON.parse(event.data);
+		const gameRoom = data.Payload;
+		console.log(data);
+		switch (data.Type) {
+			case 'Ready':
+				gameRoom.Players.forEach(player => {
+					state.entities.typies.forEach(typie => {
+						if (player.id === typie.id) {
+							if (player.isReady) {
+								typie.isReady = true;
+								typie.currentState = typie.states.moving;
+							} else {
+								typie.isReady = false;
+								typie.currentState = typie.states.standing;
+							}
+						}
+					});
+				});
+				break;
+
+			case 'NewTypie':
+				const playerID = data.Players[gameRoom.Players.length].ID;
+				// If this data we received is related to creating a new Typie.
+				renderTypie(state, playerID, gameRoom.Players.length);
+				break;
+
+			default:
+				break;
+		}
 	});
+
+	console.log(state.entities.typies);
 
 	EntitiesInit(state);
 	RenderInit(state);
@@ -120,7 +148,7 @@ const render = (state: GameState): void => {
 	RenderUpdate(state);
 };
 
-const renderTypie = (state: GameState, i: number): void => {
+const renderTypie = (state: GameState, playerID: number, i: number): void => {
 	const maxPlayer = 4;
 	const canvasWidth = window.innerWidth;
 	const canvasHeight = window.innerHeight;
@@ -128,6 +156,7 @@ const renderTypie = (state: GameState, i: number): void => {
 	state.entities.typies.push(
 		new Typie(
 			state.spritesheet,
+			playerID,
 			50,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)
