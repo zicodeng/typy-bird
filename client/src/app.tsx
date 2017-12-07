@@ -23,7 +23,7 @@ class App extends React.Component<any, any> {
 		return (
 			<div>
 				<h1 className="countdown" />
-				<h1>Typie Bird</h1>
+				<h4 className="game-title">Typie Bird</h4>
 				{this.renderButtons()}
 				{this.checkPlayersState() && this.state.counterVal !== 0 ? (
 					<h1 className="counter">{this.state.counterVal}</h1>
