@@ -15,7 +15,7 @@ class Index extends React.Component<any, any> {
 		};
 	}
 
-	private fetchTopScores= (): void => {
+	private fetchTopScores = (): void => {
 		const url = `http://${this.getCurrentHost()}/leaderboard`;
 		axios
 			.get(url)
@@ -32,9 +32,17 @@ class Index extends React.Component<any, any> {
 	public render() {
 		var button;
 		if (this.state.available) {
-			button = <button onClick={e => this.postTypie()} disabled={this.state.disabled}>PLAY</button>;
+			button = (
+				<button onClick={e => this.postTypie()} disabled={this.state.disabled}>
+					PLAY
+				</button>
+			);
 		} else {
-			button = <button disabled={true} onClick={e => this.postTypie()} >PLAY</button>;
+			button = (
+				<button disabled={true} onClick={e => this.postTypie()}>
+					PLAY
+				</button>
+			);
 		}
 		return (
 			<div>
@@ -64,9 +72,9 @@ class Index extends React.Component<any, any> {
 		});
 		websocket.addEventListener('message', event => {
 			const topScores = JSON.parse(event.data);
-			console.log(topScores)
-			if (topScores.type == "Leaderboard")  {
-				console.log(topScores.payload.available)
+			console.log(topScores);
+			if (topScores.type == 'Leaderboard') {
+				console.log(topScores.payload.available);
 				this.setState({
 					available: topScores.payload.available,
 					leaderboard: topScores.payload.leaders
@@ -77,12 +85,11 @@ class Index extends React.Component<any, any> {
 
 	private renderTable = (): JSX.Element => {
 		const thead = (
-
 			<thead>
 				<tr>
 					<td>
 						<h3>
-							{this.state.available? "Gameroom: Available": "Gameroom: Unavailable"}
+							{this.state.available ? 'Gameroom: Available' : 'Gameroom: Unavailable'}
 						</h3>
 					</td>
 				</tr>
@@ -94,8 +101,7 @@ class Index extends React.Component<any, any> {
 			</thead>
 		);
 		var count = 0;
-		var scores = this.state.leaderboard
-		.map((leader) => {
+		var scores = this.state.leaderboard.map(leader => {
 			count++;
 			return (
 				<tr key={count}>
@@ -103,20 +109,21 @@ class Index extends React.Component<any, any> {
 					<td>{leader.userName}</td>
 					<td>{leader.record}</td>
 				</tr>
-			)
-		})
+			);
+		});
 
-		const tbody = (
-			<tbody>
-					{scores}
-			</tbody>
-		)
-		return <table>{thead}{tbody}</table>;
+		const tbody = <tbody>{scores}</tbody>;
+		return (
+			<table>
+				{thead}
+				{tbody}
+			</table>
+		);
 	};
 
 	private postTypie = () => {
-		this.setState({ disabled: true});
-		console.log("fuck");
+		this.setState({ disabled: true });
+		console.log('fuck');
 		let username = this.refs.username['value'].trim();
 		if (!username) {
 			return;
