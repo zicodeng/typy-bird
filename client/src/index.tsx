@@ -87,6 +87,12 @@ class Index extends React.Component<any, any> {
 					});
 					break;
 
+				case 'GameEnd':
+					this.setState({
+						available: true
+					});
+					break;
+
 				default:
 					break;
 			}
