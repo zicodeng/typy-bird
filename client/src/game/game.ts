@@ -119,6 +119,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'Position':
+				let isGameEnded = true;
 				gameRoom.players.forEach(player => {
 					state.entities.typies.forEach(typie => {
 						if (player.id === typie.id) {
@@ -127,8 +128,15 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 								reachFinishLine(state, player.id);
 							}
 						}
+						if (player.position !== 20) {
+							isGameEnded = false;
+						}
 					});
 				});
+				if (isGameEnded) {
+					console.log('game ended');
+					endGame();
+				}
 				break;
 
 			case 'GameStart':
@@ -210,6 +218,14 @@ const reachFinishLine = (state: GameState, playerID: number): void => {
 	axios.patch(url, record).catch(error => {
 		console.log(error.response.data);
 	});
+};
+
+const endGame = () => {
+	const url = `http://${getCurrentHost()}/gameroom`;
+	axios.post(url).catch(err => {
+		console.log(err);
+	});
+	window.location.replace('index.html');
 };
 
 const getCurrentHost = (): string => {
