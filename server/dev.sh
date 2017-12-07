@@ -15,8 +15,6 @@ echo "Default localhost address for Docker containers is set to" $localhost
 # Export environment variables.
 export ADDR=localhost:3000
 
-export SESSIONKEY="secret"
-
 export DBADDR=$localhost:27017
 
 export MONGO_CONTAINER=mongo-server
@@ -31,7 +29,7 @@ docker run \
 --name $MONGO_CONTAINER \
 -p 27017:27017 \
 -e MONGO_INITDB_DATABASE=$DBNAME \
-drstearns/mongo1kusers
+mongo
 
 # Run Game API.
 go run main.go

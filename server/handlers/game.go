@@ -133,7 +133,6 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			Leaders:   leaders,
 			Available: c.GameRoom.Available,
 		}
-
 		wsPayload := struct {
 			Type    string              `json:"type,omitempty"`
 			Payload *models.LeaderBoard `json:"payload,omitempty"`

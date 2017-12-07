@@ -28,7 +28,8 @@ func main() {
 	typieStore := models.NewMongoStore(mongoSess, "GameDB", "TypieCollection")
 
 	//Initialize game room struct
-	gameRoom := &models.GameRoom{Available: true}
+	gameRoom := &models.GameRoom{}
+	gameRoom.Available = true
 
 	//Initialize handler stuff
 	notifier := handlers.NewNotifier(gameRoom)
