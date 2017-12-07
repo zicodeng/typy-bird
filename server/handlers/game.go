@@ -137,7 +137,7 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			Type    string              `json:"type,omitempty"`
 			Payload *models.LeaderBoard `json:"payload,omitempty"`
 		}{
-			"leaderboard",
+			"Leaderboard",
 			leaderBoard,
 		}
 		//broadcast new gameroom state to client
@@ -191,7 +191,7 @@ func (c *HandlerContext) PositionHandler(w http.ResponseWriter, r *http.Request)
 			Type    string           `json:"type,omitempty"`
 			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
-			"position",
+			"Position",
 			c.GameRoom,
 		}
 		//broadcast new gameroom state to client
@@ -254,7 +254,7 @@ func (c *HandlerContext) ReadyHandler(w http.ResponseWriter, r *http.Request) {
 			Type    string           `json:"type,omitempty"`
 			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
-			"ready",
+			"Ready",
 			c.GameRoom,
 		}
 		//broadcast new gameroom state to client
