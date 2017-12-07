@@ -85,11 +85,19 @@ class App extends React.Component<any, any> {
 				// Fetch game state and store it locally.
 				const websocket = this.establishWebsocket();
 				websocket.addEventListener('message', event => {
-					const gameRoom = JSON.parse(event.data);
-					console.log(gameRoom);
-					this.setState({
-						gameRoom: gameRoom
-					});
+					const data = JSON.parse(event.data);
+					const gameRoom = data.payload;
+					console.log(data);
+					switch (data.type) {
+						case 'Ready':
+							this.setState({
+								gameRoom: gameRoom
+							});
+							break;
+
+						default:
+							break;
+					}
 				});
 
 				// Fetch the most recent game room
@@ -164,27 +172,25 @@ class App extends React.Component<any, any> {
 		axios
 			.patch(url)
 			.then(res => {
-				console.log(res.data);
+				// If all players are ready, start the game.
+				if (this.checkPlayersState()) {
+					let counterVal = this.state.counterVal;
+					const counter = setInterval(() => {
+						if (counterVal !== 0) {
+							counterVal--;
+							this.setState({
+								counterVal: counterVal
+							});
+						}
+					}, 1000);
+					this.setState({
+						counter: counter
+					});
+				}
 			})
 			.catch(error => {
 				console.log(error.response.data);
 			});
-
-		// If all players are ready, start the game.
-		if (this.checkPlayersState()) {
-			let counterVal = this.state.counterVal;
-			const counter = setInterval(() => {
-				if (counterVal !== 0) {
-					counterVal--;
-					this.setState({
-						counterVal: counterVal
-					});
-				}
-			}, 1000);
-			this.setState({
-				counter: counter
-			});
-		}
 	};
 
 	private handleClickCancel = (): void => {
@@ -213,10 +219,10 @@ class App extends React.Component<any, any> {
 	private checkPlayersState = (): boolean => {
 		let result = true;
 		const gameRoom = this.state.gameRoom;
-		if (!gameRoom || !gameRoom.Players) {
-			return result;
+		if (!gameRoom || !gameRoom.players) {
+			return false;
 		}
-		gameRoom.Players.forEach(player => {
+		gameRoom.players.forEach(player => {
 			if (!player.isReady) {
 				result = false;
 				return;
