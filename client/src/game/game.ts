@@ -129,6 +129,9 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 						if (player.position !== 20) {
 							isGameEnded = false;
 						}
+						if (player.position === 20) {
+							typie.currentState = typie.states.standing;
+						}
 					});
 				});
 				if (isGameEnded) {
