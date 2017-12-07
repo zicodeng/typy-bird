@@ -84,7 +84,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 	// Load players in current game room first.
 	initGameRoom.players.forEach((player, i) => {
-		renderTypie(state, player.id, i);
+		renderTypie(state, player.id, player.userName, i);
 	});
 
 	// Update game state based on the server's response.
@@ -112,8 +112,9 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 			case 'NewTypie':
 				const playerID = data.players[gameRoom.players.length].ID;
+				const userName = data.players[gameRoom.players.length].userName;
 				// If this data we received is related to creating a new Typie.
-				renderTypie(state, playerID, gameRoom.players.length);
+				renderTypie(state, playerID, userName, gameRoom.players.length);
 				break;
 
 			case 'Position':
@@ -182,7 +183,7 @@ const render = (state: GameState): void => {
 const leftMargin = 50;
 const rightMargin = 100;
 
-const renderTypie = (state: GameState, playerID: number, i: number): void => {
+const renderTypie = (state: GameState, playerID: number, userName: string, i: number): void => {
 	const maxPlayer = 4;
 	const canvasWidth = window.innerWidth;
 	const canvasHeight = window.innerHeight;
@@ -191,6 +192,7 @@ const renderTypie = (state: GameState, playerID: number, i: number): void => {
 		new Typie(
 			state.spritesheet,
 			playerID,
+			userName,
 			leftMargin,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)

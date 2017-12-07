@@ -7,6 +7,7 @@ class Typie implements Entity {
 
 	public type: string;
 	public id: number;
+	public userName: string;
 	public sprite: Sprite;
 	public targetX: number;
 	public targetY: number;
@@ -27,6 +28,7 @@ class Typie implements Entity {
 	constructor(
 		spritesheet: HTMLImageElement,
 		id: number,
+		userName: string,
 		targetX: number,
 		targetY: number,
 		targetWidth: number = 70,
@@ -35,6 +37,7 @@ class Typie implements Entity {
 	) {
 		this.type = 'Typie';
 		this.id = id;
+		this.userName = userName;
 		this.targetX = targetX;
 		this.targetY = targetY;
 		this.targetWidth = targetWidth;
