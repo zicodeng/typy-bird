@@ -6,11 +6,11 @@ export const MovementUpdate = (state: GameState): void => {
 
 const typiesMovement = (state: GameState): void => {
 	state.entities.typies.forEach(typie => {
-		// typie.targetX += 2;
 		// Reach finish line.
-		if (typie.targetX > state.canvas.fgCanvas.width - 120) {
+		if (typie.targetX > state.canvas.fgCanvas.width - 100) {
 			typie.velocityX = 0;
-			typie.targetX = state.canvas.fgCanvas.width - 120;
+			typie.targetX = state.canvas.fgCanvas.width - 100;
+			typie.currentState = typie.states.standing;
 		} else {
 			typie.currentState.movement(state);
 		}

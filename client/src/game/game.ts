@@ -79,7 +79,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	state.entities.hearts = [];
 
 	// Load players in current game room first.
-	console.log('init', initGameRoom);
 	initGameRoom.players.forEach((player, i) => {
 		renderTypie(state, player.id, i);
 	});
@@ -89,7 +88,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 		// Change state that will get passed to update and render functions.
 		const data = JSON.parse(event.data);
 		const gameRoom = data.payload;
-		console.log(data);
+		console.log(gameRoom);
 		switch (data.type) {
 			case 'Ready':
 				gameRoom.players.forEach(player => {
@@ -111,6 +110,16 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				const playerID = data.players[gameRoom.players.length].ID;
 				// If this data we received is related to creating a new Typie.
 				renderTypie(state, playerID, gameRoom.players.length);
+				break;
+
+			case 'Position':
+				gameRoom.players.forEach(player => {
+					state.entities.typies.forEach(typie => {
+						if (player.id === typie.id) {
+							typie.targetX = calcPos(player.position);
+						}
+					});
+				});
 				break;
 
 			default:
@@ -148,6 +157,9 @@ const render = (state: GameState): void => {
 	RenderUpdate(state);
 };
 
+const leftMargin = 50;
+const rightMargin = 100;
+
 const renderTypie = (state: GameState, playerID: number, i: number): void => {
 	const maxPlayer = 4;
 	const canvasWidth = window.innerWidth;
@@ -157,15 +169,20 @@ const renderTypie = (state: GameState, playerID: number, i: number): void => {
 		new Typie(
 			state.spritesheet,
 			playerID,
-			50,
+			leftMargin,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)
 	);
 	state.entities.hearts.push(
 		new Heart(
 			state.spritesheet,
-			canvasWidth - 100,
+			canvasWidth - rightMargin,
 			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 		)
 	);
+};
+
+const calcPos = (pos: number) => {
+	const canvasWidth = window.innerWidth - leftMargin - rightMargin;
+	return canvasWidth / 20 * pos;
 };
