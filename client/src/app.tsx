@@ -41,7 +41,7 @@ class App extends React.Component<any, any> {
 	}
 
 	public componentWillMount() {
-		this.fetchGameRoom();
+		// this.fetchGameRoom();
 		this.fetchPlayer();
 	}
 
@@ -94,10 +94,11 @@ class App extends React.Component<any, any> {
 				this.setState({
 					gameRoom: res.data
 				});
+				console.log(res.data);
 				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
-				console.log(error);
+				console.log(error.response.data);
 			});
 	};
 
@@ -113,9 +114,10 @@ class App extends React.Component<any, any> {
 				this.setState({
 					player: res.data
 				});
+				console.log(res);
 			})
 			.catch(error => {
-				console.log(error);
+				console.log(error.response.data);
 			});
 	};
 
@@ -162,7 +164,7 @@ class App extends React.Component<any, any> {
 				console.log(res.data);
 			})
 			.catch(error => {
-				console.log(error);
+				console.log(error.response.data);
 			});
 
 		// If all players are ready, start the game.
@@ -201,7 +203,7 @@ class App extends React.Component<any, any> {
 				console.log(res.data);
 			})
 			.catch(error => {
-				console.log(error);
+				console.log(error.response.data);
 			});
 	};
 
