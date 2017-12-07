@@ -225,7 +225,7 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	case "POST":
-		c.GameRoom.Available = false
+		c.GameRoom.Available = !c.GameRoom.Available
 
 		startTime := time.Now()
 
