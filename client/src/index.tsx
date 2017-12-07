@@ -30,17 +30,15 @@ class Index extends React.Component<any, any> {
 	};
 
 	public render() {
-		if (localStorage.getItem("TypieID")) {
+		if (localStorage.getItem('TypieID')) {
 			const typieID = localStorage.getItem('TypieID');
 
 			const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
-			axios
-				.delete(url)
-				.catch(error => {
-					console.log(error);
-				});
+			axios.delete(url).catch(error => {
+				console.log(error);
+			});
 
-			localStorage.clear()
+			localStorage.clear();
 		}
 		var button;
 		if (this.state.available) {
@@ -88,14 +86,23 @@ class Index extends React.Component<any, any> {
 			console.log('Websocket connection closed');
 		});
 		websocket.addEventListener('message', event => {
-			const topScores = JSON.parse(event.data);
-			console.log(topScores);
-			if (topScores.type == 'Leaderboard') {
-				console.log(topScores.payload.available);
-				this.setState({
-					available: topScores.payload.available,
-					leaderboard: topScores.payload.leaders
-				});
+			const data = JSON.parse(event.data);
+			switch (data.type) {
+				case 'Leaderboard':
+					this.setState({
+						available: data.payload.available,
+						leaderboard: data.payload.leaders
+					});
+					break;
+
+				case 'GameStart':
+					this.setState({
+						available: false
+					});
+					break;
+
+				default:
+					break;
 			}
 		});
 	}
