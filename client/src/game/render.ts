@@ -28,6 +28,14 @@ export const RenderUpdate = (state: GameState): void => {
 	// Draw Typies.
 	state.entities.typies.forEach(typie => {
 		drawEntity(typie, state.canvas.fgCtx);
+		const typieName: Text = {
+			content: typie.userName,
+			color: '#000',
+			font: '15px sans-serif',
+			xPos: typie.targetX,
+			yPos: typie.targetY + typie.targetHeight + 20
+		};
+		drawText(typieName, state.canvas.fgCtx);
 	});
 
 	// Draw hearts.
