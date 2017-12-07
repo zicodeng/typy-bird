@@ -123,16 +123,16 @@ class Index extends React.Component<any, any> {
 				</tr>
 			</thead>
 		);
-		var count = 0;
-		var scores = this.state.leaderboard.map(leader => {
-			count++;
-			return (
-				<tr key={count}>
-					<td>{count}</td>
-					<td>{leader.userName}</td>
-					<td>{leader.record}</td>
-				</tr>
-			);
+		var scores = this.state.leaderboard.map((leader, i) => {
+			if (leader.record !== 0) {
+				return (
+					<tr key={i}>
+						<td>{i + 1}</td>
+						<td>{leader.userName}</td>
+						<td>{leader.record}</td>
+					</tr>
+				);
+			}
 		});
 
 		const tbody = <tbody>{scores}</tbody>;
