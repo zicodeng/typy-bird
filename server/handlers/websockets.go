@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sync"
 
@@ -81,13 +80,11 @@ func (n *Notifier) AddClient(client *websocket.Conn) {
 
 //Notify broadcasts the event to all WebSocket clients
 func (n *Notifier) Notify(event []byte) {
-	log.Printf("adding event to the queue")
 	n.eventQ <- event
 }
 
 //start starts the notification loop
 func (n *Notifier) start() {
-	log.Println("starting notifier loop")
 	for {
 		event := <-n.eventQ
 		for _, client := range n.clients {
