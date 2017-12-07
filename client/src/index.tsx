@@ -55,27 +55,20 @@ class Index extends React.Component<any, any> {
 				</tr>
 			</thead>
 		);
-		const rows = (
-			{}
-		)
-		const tbody = (
-			<tbody>
-				{rows}
-			</tbody>
-		)
+		const rows = {};
+		const tbody = <tbody>{rows}</tbody>;
 		return <table>{thead}</table>;
 	};
 
 	private postTypie = () => {
 		let username = this.refs.username['value'].trim();
-		let typie = {
-			userName: ''
-		};
 		if (!username) {
 			return;
 		}
-		typie.userName = username;
 
+		let typie = {
+			userName: username
+		};
 		const url = `http://${this.getCurrentHost()}/typie`;
 		axios
 			.post(url, typie)
