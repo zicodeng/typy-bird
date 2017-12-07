@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/info344-a17/typy-bird/server/models"
 	"gopkg.in/mgo.v2/bson"
@@ -223,6 +224,23 @@ func (c *HandlerContext) GameroomHandler(w http.ResponseWriter, r *http.Request)
 			http.Error(w, fmt.Sprintf("error encoding user to JSON: %v", err), http.StatusInternalServerError)
 			return
 		}
+	case "POST":
+		startTime := time.Now()
+
+		wsPayload := struct {
+			Type      string    `json:"type,omitempty"`
+			StartTime time.Time `json:"startTime,omitempty"`
+		}{
+			"GameStart",
+			startTime,
+		}
+		//broadcast new gameroom state to client
+		payload, jsonErr := json.Marshal(wsPayload)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		c.Notifier.Notify(payload)
 	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
