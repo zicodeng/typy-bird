@@ -67,7 +67,8 @@ class Typing extends React.Component<any, any> {
 		// update currentWordIndex by 1,
 		// and prompt the user with a new currentWord.
 		if (word === currentWord) {
-			const url = `http://${this.props.getCurrentHost()}/position`;
+			const typieID = localStorage.getItem('TypieID');
+			const url = `http://${this.props.getCurrentHost()}/typie/position?auth=${typieID}`;
 			axios.patch(url).catch(error => {
 				console.log(error);
 			});

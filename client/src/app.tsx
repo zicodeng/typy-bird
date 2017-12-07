@@ -14,7 +14,8 @@ class App extends React.Component<any, any> {
 		this.state = {
 			playerState: 'waiting',
 			counterVal: 3,
-			gameRoom: null
+			gameRoom: null,
+			player: null
 		};
 	}
 
@@ -50,13 +51,26 @@ class App extends React.Component<any, any> {
 		// and stop counter.
 		if (this.state.counterVal === 0) {
 			clearInterval(counter);
+			this.startGame();
 		}
 	}
+
+	// Inform the server that our game has started.
+	private startGame = (): void => {
+		const url = `http://${this.getCurrentHost()}/gameroom`;
+		axios.post(url).catch(err => {
+			console.log(err);
+		});
+	};
 
 	private establishWebsocket = (): WebSocket => {
 		const websocket = new WebSocket(`ws://${this.getCurrentHost()}/ws`);
 		websocket.addEventListener('error', function(err) {
 			console.log(err);
+			// If the connection is lost,
+			// the player will be forced to quit the game.
+			localStorage.removeItem('TypieID');
+			window.location.replace('index.html');
 		});
 		websocket.addEventListener('open', function() {
 			console.log('Websocket connection established');
@@ -80,11 +94,23 @@ class App extends React.Component<any, any> {
 				// Fetch game state and store it locally.
 				const websocket = this.establishWebsocket();
 				websocket.addEventListener('message', event => {
-					const gameRoom = JSON.parse(event.data);
-					this.setState({
-						gameRoom: gameRoom
-					});
+					const data = JSON.parse(event.data);
+					const gameRoom = data.payload;
+					console.log(data);
+					switch (data.type) {
+						case 'Ready':
+							this.setState({
+								gameRoom: gameRoom
+							});
+							break;
+
+						default:
+							break;
+					}
 				});
+
+				// Fetch the most recent game room
+				// if the player just joins the game or refresh the page.
 				this.setState({
 					gameRoom: res.data
 				});
@@ -104,10 +130,14 @@ class App extends React.Component<any, any> {
 		axios
 			.get(url)
 			.then(res => {
-				console.log(res);
+				this.setState({
+					player: res.data
+				});
 			})
 			.catch(error => {
-				console.log(error);
+				console.log(error.response.data);
+				localStorage.removeItem('TypieID');
+				window.location.replace('index.html');
 			});
 	};
 
@@ -141,21 +171,35 @@ class App extends React.Component<any, any> {
 		this.setState({
 			playerState: 'ready'
 		});
-		// If all players are ready, start the game.
-		if (this.checkPlayersState()) {
-			let counterVal = this.state.counterVal;
-			const counter = setInterval(() => {
-				if (counterVal !== 0) {
-					counterVal--;
+
+		const typieID = localStorage.getItem('TypieID');
+		if (!typieID) {
+			return;
+		}
+		// Update server.
+		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
+		axios
+			.patch(url)
+			.then(res => {
+				// If all players are ready, start the game.
+				if (this.checkPlayersState()) {
+					let counterVal = this.state.counterVal;
+					const counter = setInterval(() => {
+						if (counterVal !== 0) {
+							counterVal--;
+							this.setState({
+								counterVal: counterVal
+							});
+						}
+					}, 1000);
 					this.setState({
-						counterVal: counterVal
+						counter: counter
 					});
 				}
-			}, 1000);
-			this.setState({
-				counter: counter
+			})
+			.catch(error => {
+				console.log(error.response.data);
 			});
-		}
 	};
 
 	private handleClickCancel = (): void => {
@@ -165,15 +209,29 @@ class App extends React.Component<any, any> {
 			playerState: 'waiting',
 			counterVal: 3
 		});
+		const typieID = localStorage.getItem('TypieID');
+		if (!typieID) {
+			return;
+		}
+		// Update server.
+		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
+		axios
+			.patch(url)
+			.then(res => {
+				console.log(res.data);
+			})
+			.catch(error => {
+				console.log(error.response.data);
+			});
 	};
 
 	private checkPlayersState = (): boolean => {
 		let result = true;
 		const gameRoom = this.state.gameRoom;
-		if (!gameRoom || !gameRoom.Players) {
-			return result;
+		if (!gameRoom || !gameRoom.players) {
+			return false;
 		}
-		gameRoom.Players.forEach(player => {
+		gameRoom.players.forEach(player => {
 			if (!player.isReady) {
 				result = false;
 				return;
