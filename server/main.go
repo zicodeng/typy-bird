@@ -41,6 +41,8 @@ func main() {
 	mux.HandleFunc("/dictionary", context.DictHandler)
 	//GET for retrieving specific bird, PATCH for updating typie records
 	mux.HandleFunc("/typie/me", context.TypieMeHandler)
+	//GET for retrieving leaderboard
+	mux.HandleFunc("/leaderboard", context.LeaderboardHandler)
 	//PATCH for updating typie positions
 	mux.HandleFunc("/typie/position", context.PositionHandler)
 	//PATCH for updating typie ready status
