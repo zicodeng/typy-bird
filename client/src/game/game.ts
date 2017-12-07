@@ -82,8 +82,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	state.entities.typies = [];
 	state.entities.hearts = [];
 
-	console.log(initGameRoom);
-
 	// Load players in current game room first.
 	initGameRoom.players.forEach((player, i) => {
 		renderTypie(state, player.id, i);
@@ -152,7 +150,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	console.log(state.entities.typies);
 
 	EntitiesInit(state);
-	RenderInit(state);
 
 	run(state);
 };
@@ -177,6 +174,7 @@ const update = (state: GameState): void => {
 
 const render = (state: GameState): void => {
 	RenderUpdate(state);
+	RenderInit(state);
 };
 
 const leftMargin = 50;
