@@ -24,8 +24,8 @@ export interface GameState {
 }
 
 interface GameRoom {
-	Available: boolean;
-	Players: any;
+	available: boolean;
+	players: any;
 }
 
 // Initialize the game.
@@ -80,7 +80,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 	// Load players in current game room first.
 	console.log('init', initGameRoom);
-	initGameRoom.Players.forEach((player, i) => {
+	initGameRoom.players.forEach((player, i) => {
 		renderTypie(state, player.id, i);
 	});
 
@@ -88,11 +88,11 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	websocket.addEventListener('message', event => {
 		// Change state that will get passed to update and render functions.
 		const data = JSON.parse(event.data);
-		const gameRoom = data.Payload;
+		const gameRoom = data.payload;
 		console.log(data);
-		switch (data.Type) {
+		switch (data.type) {
 			case 'Ready':
-				gameRoom.Players.forEach(player => {
+				gameRoom.players.forEach(player => {
 					state.entities.typies.forEach(typie => {
 						if (player.id === typie.id) {
 							if (player.isReady) {
@@ -108,9 +108,9 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'NewTypie':
-				const playerID = data.Players[gameRoom.Players.length].ID;
+				const playerID = data.players[gameRoom.players.length].ID;
 				// If this data we received is related to creating a new Typie.
-				renderTypie(state, playerID, gameRoom.Players.length);
+				renderTypie(state, playerID, gameRoom.players.length);
 				break;
 
 			default:
