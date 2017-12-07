@@ -1,3 +1,71 @@
 @import 'compass';
 @import 'helpers/module';
 @import 'base/module';
+
+body {
+	background-color: $blue;
+	display: flex;
+	justify-content: center;
+	color: $black;
+	font-family: $base-font-family;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.greeting {
+	margin: 50px 0;
+}
+
+input {
+	width: 400px;
+	border: 1px solid $black;
+	font-size: 30px;
+	padding: 10px;
+	margin: 25px 0;
+}
+
+button {
+	width: 400px;
+	padding: 25px;
+	font-size: 25px;
+	padding: 15px 0;
+	margin-bottom: 60px;
+	background-color: yellow;
+	&:hover {
+		cursor: pointer;
+		background-color: darken(yellow, 5%);
+	}
+}
+
+.gameroom-status {
+	span {
+		color: $red;
+	}
+}
+
+table {
+	font-size: 20px;
+	margin-top: 25px;
+	thead {
+		th {
+			font-weight: bold;
+			padding: 0 50px 10px;
+		}
+	}
+	tbody {
+		tr {
+			border-bottom: 1px solid $black;
+			&:last-child {
+				border: none;
+			}
+		}
+		td {
+			text-align: center;
+			padding: 10px 50px;
+		}
+	}
+}

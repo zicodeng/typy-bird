@@ -45,16 +45,15 @@ class Index extends React.Component<any, any> {
 			);
 		}
 		return (
-			<div>
-				<h1>Hello, New Typies</h1>
-				<input type="text" ref="username" id="username" />
-				{button}
-				<h4>
-					{' '}
-					{this.state.available
-						? 'Game Room Status: Available'
-						: 'Game Room Status: Unavailable'}{' '}
+			<div className="container">
+				<h1 className="greeting">Hello, New Typies!</h1>
+				<h4 className="gameroom-status">
+					Game Room Status:&nbsp;
+					{this.state.available ? <span>Available</span> : <span>Unavailable</span>}
 				</h4>
+				<input type="text" ref="username" id="username" placeholder="Username" />
+				{button}
+				<h4>History Records</h4>
 				{this.renderTable()}
 			</div>
 		);
