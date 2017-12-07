@@ -99,12 +99,12 @@ func (n *Notifier) start() {
 }
 
 func (n *Notifier) removeClient(client *websocket.Conn) {
+	log.Println("removing a client")
 	client.Close()
 	for i, c := range n.clients {
 		if client == c {
 			n.mx.Lock()
 			n.clients = append(n.clients[:i], n.clients[i+1:]...)
-			n.gameRoom.Players = append(n.gameRoom.Players[:i], n.gameRoom.Players[i+1:]...)
 			n.mx.Unlock()
 		}
 	}
