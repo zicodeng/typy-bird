@@ -78,42 +78,35 @@ class App extends React.Component<any, any> {
 		websocket.addEventListener('close', function() {
 			console.log('Websocket connection closed');
 		});
+		websocket.addEventListener('message', event => {
+			const data = JSON.parse(event.data);
+			const gameRoom = data.payload;
+			console.log(data);
+			switch (data.type) {
+				case 'Ready':
+					this.setState({
+						gameRoom: gameRoom
+					});
+					break;
+
+				default:
+					break;
+			}
+		});
 		return websocket;
 	};
 
 	// When a new player first joins the game room,
 	// fetch the most updated game room.
-	// This is a hacky way to get game room.
-	// Sending request to this url will cause websocket to broadcast game room.
-	// We are not really getting any response data back.
 	private fetchGameRoom = (): void => {
 		const url = `http://${this.getCurrentHost()}/gameroom`;
 		axios
 			.get(url)
 			.then(res => {
-				// Fetch game state and store it locally.
-				const websocket = this.establishWebsocket();
-				websocket.addEventListener('message', event => {
-					const data = JSON.parse(event.data);
-					const gameRoom = data.payload;
-					console.log(data);
-					switch (data.type) {
-						case 'Ready':
-							this.setState({
-								gameRoom: gameRoom
-							});
-							break;
-
-						default:
-							break;
-					}
-				});
-
-				// Fetch the most recent game room
-				// if the player just joins the game or refresh the page.
 				this.setState({
 					gameRoom: res.data
 				});
+				const websocket = this.establishWebsocket();
 				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
