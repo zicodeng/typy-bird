@@ -7,7 +7,6 @@ import (
 
 	"github.com/info344-a17/typy-bird/server/handlers"
 	"github.com/info344-a17/typy-bird/server/models"
-	"github.com/info344-a17/typy-bird/server/ws"
 	"gopkg.in/mgo.v2"
 )
 
