@@ -110,8 +110,8 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'NewTypie':
-				const playerID = data.players[gameRoom.players.length].ID;
-				const userName = data.players[gameRoom.players.length].userName;
+				const playerID = gameRoom.players[gameRoom.players.length - 1].ID;
+				const userName = gameRoom.players[gameRoom.players.length - 1].userName;
 				// If this data we received is related to creating a new Typie.
 				renderTypie(state, playerID, userName, gameRoom.players.length);
 				break;
