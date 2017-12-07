@@ -12,7 +12,9 @@ class App extends React.Component<any, any> {
 		super(props, context);
 
 		this.state = {
+			isGameInProgress: false,
 			playerState: 'waiting',
+			counter: null,
 			counterVal: 3,
 			gameRoom: null,
 			player: null
@@ -78,42 +80,48 @@ class App extends React.Component<any, any> {
 		websocket.addEventListener('close', function() {
 			console.log('Websocket connection closed');
 		});
+		websocket.addEventListener('message', event => {
+			const data = JSON.parse(event.data);
+			const gameRoom = data.payload;
+			switch (data.type) {
+				case 'Ready':
+					this.setState({
+						gameRoom: gameRoom
+					});
+					// If all players are ready, start the game.
+					if (this.checkPlayersState()) {
+						let counterVal = this.state.counterVal;
+						this.setState({
+							counter: setInterval(() => {
+								if (counterVal !== 0) {
+									counterVal--;
+									this.setState({
+										counterVal: counterVal
+									});
+								}
+							}, 1000)
+						});
+					}
+					break;
+
+				default:
+					break;
+			}
+		});
 		return websocket;
 	};
 
 	// When a new player first joins the game room,
 	// fetch the most updated game room.
-	// This is a hacky way to get game room.
-	// Sending request to this url will cause websocket to broadcast game room.
-	// We are not really getting any response data back.
 	private fetchGameRoom = (): void => {
 		const url = `http://${this.getCurrentHost()}/gameroom`;
 		axios
 			.get(url)
 			.then(res => {
-				// Fetch game state and store it locally.
-				const websocket = this.establishWebsocket();
-				websocket.addEventListener('message', event => {
-					const data = JSON.parse(event.data);
-					const gameRoom = data.payload;
-					console.log(data);
-					switch (data.type) {
-						case 'Ready':
-							this.setState({
-								gameRoom: gameRoom
-							});
-							break;
-
-						default:
-							break;
-					}
-				});
-
-				// Fetch the most recent game room
-				// if the player just joins the game or refresh the page.
 				this.setState({
 					gameRoom: res.data
 				});
+				const websocket = this.establishWebsocket();
 				Game.Init(websocket, res.data);
 			})
 			.catch(error => {
@@ -151,7 +159,11 @@ class App extends React.Component<any, any> {
 		return host;
 	};
 
-	private renderButtons = (): JSX.Element => {
+	private renderButtons = (): JSX.Element | null => {
+		// Prevent players cancelling the game if it is already started;
+		if (this.state.counterVal === 0) {
+			return null;
+		}
 		const playerState = this.state.playerState;
 		if (playerState === 'waiting') {
 			return (
@@ -178,28 +190,9 @@ class App extends React.Component<any, any> {
 		}
 		// Update server.
 		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
-		axios
-			.patch(url)
-			.then(res => {
-				// If all players are ready, start the game.
-				if (this.checkPlayersState()) {
-					let counterVal = this.state.counterVal;
-					const counter = setInterval(() => {
-						if (counterVal !== 0) {
-							counterVal--;
-							this.setState({
-								counterVal: counterVal
-							});
-						}
-					}, 1000);
-					this.setState({
-						counter: counter
-					});
-				}
-			})
-			.catch(error => {
-				console.log(error.response.data);
-			});
+		axios.patch(url).catch(error => {
+			console.log(error.response.data);
+		});
 	};
 
 	private handleClickCancel = (): void => {
@@ -215,14 +208,9 @@ class App extends React.Component<any, any> {
 		}
 		// Update server.
 		const url = `http://${this.getCurrentHost()}/ready?auth=${typieID}`;
-		axios
-			.patch(url)
-			.then(res => {
-				console.log(res.data);
-			})
-			.catch(error => {
-				console.log(error.response.data);
-			});
+		axios.patch(url).catch(error => {
+			console.log(error.response.data);
+		});
 	};
 
 	private checkPlayersState = (): boolean => {
