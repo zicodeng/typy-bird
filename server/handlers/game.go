@@ -121,33 +121,6 @@ func (c *HandlerContext) TypieMeHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		//get top scorers from mongo store
-		leaders, getErr := c.TypieStore.GetTopScores()
-		if getErr != nil {
-			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", getErr), http.StatusInternalServerError)
-			return
-		}
-
-		//create LeaderBoard struct and marshall to json
-		leaderBoard := &models.LeaderBoard{
-			Leaders:   leaders,
-			Available: c.GameRoom.Available,
-		}
-		wsPayload := struct {
-			Type    string              `json:"type,omitempty"`
-			Payload *models.LeaderBoard `json:"payload,omitempty"`
-		}{
-			"Leaderboard",
-			leaderBoard,
-		}
-		//broadcast new gameroom state to client
-		payload, jsonErr := json.Marshal(wsPayload)
-		if jsonErr != nil {
-			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
-			return
-		}
-		c.Notifier.Notify(payload)
-
 		//respond to client with updated bird
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(bird); err != nil {
@@ -269,7 +242,7 @@ func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request
 		startTime := time.Now()
 
 		wsPayload := struct {
-			Type    string    `json:"type,omitempty"`
+			Type      string    `json:"type,omitempty"`
 			StartTime time.Time `json:"startTime,omitempty"`
 		}{
 			"GameStart",
@@ -292,26 +265,54 @@ func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request
 func (c *HandlerContext) EndGameHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
+		//reset gameroom to initial state
 		c.GameRoom.Available = true
-
 		for _, client := range c.GameRoom.Players {
 			c.GameRoom.Delete(client.ID)
 		}
 
-		wsPayload := struct {
-			Type     string           `json:"type,omitempty"`
+		//broadcast new gameroom state to client
+		gwsPayload := struct {
+			Type    string           `json:"type,omitempty"`
 			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
 			"GameEnd",
 			c.GameRoom,
 		}
-		//broadcast new gameroom state to client
-		payload, jsonErr := json.Marshal(wsPayload)
+		gamePayload, jsonErr := json.Marshal(gwsPayload)
 		if jsonErr != nil {
 			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
 			return
 		}
-		c.Notifier.Notify(payload)
+		c.Notifier.Notify(gamePayload)
+
+		//get top scorers from mongo store
+		leaders, getErr := c.TypieStore.GetTopScores()
+		if getErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling leaderboard to JSON: %v", getErr), http.StatusInternalServerError)
+			return
+		}
+
+		//create LeaderBoard struct and marshall to json
+		leaderBoard := &models.LeaderBoard{
+			Leaders:   leaders,
+			Available: c.GameRoom.Available,
+		}
+
+		//broadcast new gameroom state to client
+		lwsPayload := struct {
+			Type    string              `json:"type,omitempty"`
+			Payload *models.LeaderBoard `json:"payload,omitempty"`
+		}{
+			"Leaderboard",
+			leaderBoard,
+		}
+		leaderPayload, jsonErr := json.Marshal(lwsPayload)
+		if jsonErr != nil {
+			http.Error(w, fmt.Sprintf("error marshalling payload to JSON: %v", jsonErr), http.StatusInternalServerError)
+			return
+		}
+		c.Notifier.Notify(leaderPayload)
 	default:
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
