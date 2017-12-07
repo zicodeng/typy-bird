@@ -135,9 +135,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 					});
 				});
 				if (isGameEnded) {
-					// Clear all typies in game state.
-					state.entities.typies = [];
-					endGame();
+					endGame(state);
 				}
 				break;
 
@@ -222,12 +220,16 @@ const reachFinishLine = (state: GameState, playerID: number): void => {
 	});
 };
 
-const endGame = () => {
+const endGame = (state: GameState) => {
 	const url = `http://${getCurrentHost()}/gameroom`;
 	axios.post(url).catch(err => {
 		console.log(err);
 	});
-	window.location.replace('index.html');
+	setTimeout(() => {
+		// Clear all typies in game state.
+		state.entities.typies = [];
+		window.location.replace('index.html');
+	}, 3000);
 };
 
 const getCurrentHost = (): string => {
