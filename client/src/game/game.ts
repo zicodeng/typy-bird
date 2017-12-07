@@ -132,7 +132,8 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 					});
 				});
 				if (isGameEnded) {
-					console.log('game ended');
+					// Clear all typies in game state.
+					state.entities.typies = [];
 					endGame();
 				}
 				break;
