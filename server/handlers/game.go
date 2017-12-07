@@ -270,7 +270,7 @@ func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request
 
 		wsPayload := struct {
 			Type    string    `json:"type,omitempty"`
-			Payload time.Time `json:"payload,omitempty"`
+			StartTime time.Time `json:"startTime,omitempty"`
 		}{
 			"GameStart",
 			startTime,
@@ -300,7 +300,7 @@ func (c *HandlerContext) EndGameHandler(w http.ResponseWriter, r *http.Request) 
 
 		wsPayload := struct {
 			Type     string           `json:"type,omitempty"`
-			GameRoom *models.GameRoom `json:"gameRoom,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
 			"GameEnd",
 			c.GameRoom,
