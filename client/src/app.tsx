@@ -57,7 +57,7 @@ class App extends React.Component<any, any> {
 
 	// Inform the server that our game has started.
 	private startGame = (): void => {
-		const url = `http://${this.getCurrentHost()}/gameroom`;
+		const url = `http://${this.getCurrentHost()}/start`;
 		axios.post(url).catch(err => {
 			console.log(err);
 		});
