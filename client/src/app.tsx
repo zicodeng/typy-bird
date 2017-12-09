@@ -164,6 +164,9 @@ class App extends React.Component<any, any> {
 		if (this.state.counterVal === 0) {
 			return null;
 		}
+		if (this.checkPlayersState()) {
+			return null;
+		}
 		const playerState = this.state.playerState;
 		if (playerState === 'waiting') {
 			return (

@@ -30,17 +30,6 @@ class Index extends React.Component<any, any> {
 	};
 
 	public render() {
-		if (localStorage.getItem('TypieID')) {
-			const typieID = localStorage.getItem('TypieID');
-			if (typieID) {
-				const url = `http://${this.getCurrentHost()}/gameroom?auth=${typieID}`;
-				axios.delete(url).catch(error => {
-					console.log(error);
-				});
-
-				localStorage.clear();
-			}
-		}
 		return (
 			<div className="container">
 				<h1 className="greeting">Hello, New Typies!</h1>
@@ -50,13 +39,15 @@ class Index extends React.Component<any, any> {
 				</h4>
 				<input type="text" ref="username" id="username" placeholder="Username" />
 				{this.renderButtons()}
-				<h4>History Records</h4>
+				<h4>Leaderboard</h4>
 				{this.renderTable()}
 			</div>
 		);
 	}
 
 	public componentWillMount() {
+		localStorage.clear();
+
 		//establish websocket collection
 		this.fetchTopScores();
 		let host = this.getCurrentHost();
@@ -123,16 +114,16 @@ class Index extends React.Component<any, any> {
 				</tr>
 			</thead>
 		);
-		var count = 0;
-		var scores = this.state.leaderboard.map(leader => {
-			count++;
-			return (
-				<tr key={count}>
-					<td>{count}</td>
-					<td>{leader.userName}</td>
-					<td>{leader.record}</td>
-				</tr>
-			);
+		var scores = this.state.leaderboard.map((leader, i) => {
+			if (leader.record !== 0) {
+				return (
+					<tr key={i}>
+						<td>{i + 1}</td>
+						<td>{leader.userName}</td>
+						<td>{leader.record}</td>
+					</tr>
+				);
+			}
 		});
 
 		const tbody = <tbody>{scores}</tbody>;
