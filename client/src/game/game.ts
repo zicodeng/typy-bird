@@ -205,12 +205,12 @@ const reachFinishLine = (state: GameState, gameRoom: GameRoom, playerID: number)
 	const record = {
 		record: (new Date().getTime() - state.startTime.getTime()) / 1000
 	};
-	console.log(new Date().getTime() / 1000, state.startTime.getTime() / 1000, record);
 	axios
 		.patch(url, record)
 		.then(res => {
 			let isGameEnded = true;
 			gameRoom.players.forEach(player => {
+				console.log(player.position);
 				if (player.position !== 20) {
 					isGameEnded = false;
 				}
