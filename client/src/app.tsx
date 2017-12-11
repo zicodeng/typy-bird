@@ -15,7 +15,7 @@ class App extends React.Component<any, any> {
 			isGameInProgress: false,
 			playerState: 'waiting',
 			counter: null,
-			counterVal: 0,
+			counterVal: 3,
 			gameRoom: null,
 			player: null
 		};
@@ -139,7 +139,8 @@ class App extends React.Component<any, any> {
 				});
 				if (this.checkPlayersState()) {
 					this.setState({
-						playerState: 'ready'
+						playerState: 'ready',
+						counterVal: 0
 					});
 				}
 			})
