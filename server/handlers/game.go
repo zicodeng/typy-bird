@@ -63,6 +63,7 @@ func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request
 		c.GameRoom.Available = false
 
 		startTime := time.Now()
+		c.GameRoom.StartTime = startTime
 
 		wsPayload := struct {
 			Type      string    `json:"type,omitempty"`

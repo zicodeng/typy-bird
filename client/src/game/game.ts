@@ -27,6 +27,7 @@ export interface GameState {
 }
 
 interface GameRoom {
+	startTime: Date;
 	available: boolean;
 	players: any;
 }
@@ -89,6 +90,11 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 	state.entities.typies = [];
 	state.entities.hearts = [];
+
+	console.log(initGameRoom);
+
+	// Preserve game start time.
+	state.startTime = new Date(initGameRoom.startTime);
 
 	// Load players in current game room first.
 	initGameRoom.players.forEach((player, i) => {
@@ -194,6 +200,12 @@ const renderTypie = (state: GameState, player: Player, i: number): void => {
 	// If this Typie has initial targetX...
 	if (player.position) {
 		typie.targetX = calcPos(player.position);
+	}
+
+	// If this Typie is ready...
+	if (player.isReady) {
+		typie.isReady = true;
+		typie.currentState = typie.states.moving;
 	}
 
 	state.entities.typies.push(typie);

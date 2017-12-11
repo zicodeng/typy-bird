@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -20,6 +21,7 @@ type LeaderBoard struct {
 type GameRoom struct {
 	Players   []*TypieBird `json:"players,omitempty"`
 	Available bool         `json:"available,omitempty"`
+	StartTime time.Time    `json:"startTime,omitempty"`
 	mx        sync.RWMutex
 }
 
