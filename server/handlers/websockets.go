@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/info344-a17/typy-bird/server/models"
 )
 
 const maxPlayers = 4
@@ -14,15 +13,13 @@ const maxPlayers = 4
 //WebSocketsHandler is a handler for WebSocket upgrade requests
 type WebSocketsHandler struct {
 	notifier *Notifier
-	gameRoom *models.GameRoom
 	upgrader *websocket.Upgrader
 }
 
 //NewWebSocketsHandler constructs a new WebSocketsHandler
-func NewWebSocketsHandler(notifer *Notifier, gameroom *models.GameRoom) *WebSocketsHandler {
+func NewWebSocketsHandler(notifer *Notifier) *WebSocketsHandler {
 	return &WebSocketsHandler{
 		notifier: notifer,
-		gameRoom: gameroom,
 		upgrader: &websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -38,28 +35,22 @@ func (wsh *WebSocketsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, fmt.Sprintf("error upgrading websocket: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if len(wsh.notifier.clients) != maxPlayers {
-		go wsh.notifier.AddClient(conn)
-	} else {
-		http.Error(w, "game room is full", http.StatusConflict)
-	}
+	go wsh.notifier.AddClient(conn)
 }
 
 //Notifier is an object that handles WebSocket notifications
 type Notifier struct {
-	clients  []*websocket.Conn
-	eventQ   chan []byte
-	mx       *sync.RWMutex
-	gameRoom *models.GameRoom
+	clients []*websocket.Conn
+	eventQ  chan []byte
+	mx      *sync.RWMutex
 }
 
 //NewNotifier constructs a new Notifier
-func NewNotifier(gameroom *models.GameRoom) *Notifier {
+func NewNotifier() *Notifier {
 	notifier := &Notifier{
-		clients:  make([]*websocket.Conn, 0),
-		eventQ:   make(chan []byte),
-		mx:       &sync.RWMutex{},
-		gameRoom: gameroom,
+		clients: make([]*websocket.Conn, 0),
+		eventQ:  make(chan []byte),
+		mx:      &sync.RWMutex{},
 	}
 	go notifier.start()
 	return notifier
