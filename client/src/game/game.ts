@@ -31,6 +31,14 @@ interface GameRoom {
 	players: any;
 }
 
+interface Player {
+	id: number;
+	isReady: boolean;
+	position: number;
+	record: number;
+	userName: string;
+}
+
 // Initialize the game.
 export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	const bgCanvas = <HTMLCanvasElement>document.getElementById('bg-canvas');
@@ -84,7 +92,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 
 	// Load players in current game room first.
 	initGameRoom.players.forEach((player, i) => {
-		renderTypie(state, player.id, player.userName, i);
+		renderTypie(state, player, i);
 	});
 
 	// Update game state based on the server's response.
@@ -110,10 +118,9 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'NewTypie':
-				const playerID = gameRoom.players[gameRoom.players.length - 1].id;
-				const userName = gameRoom.players[gameRoom.players.length - 1].userName;
 				// If this data we received is related to creating a new Typie.
-				renderTypie(state, playerID, userName, gameRoom.players.length - 1);
+				const playerIndex = gameRoom.players.length - 1;
+				renderTypie(state, gameRoom.players[playerIndex], playerIndex);
 				break;
 
 			case 'Position':
@@ -171,20 +178,25 @@ const render = (state: GameState): void => {
 const leftMargin = 50;
 const rightMargin = 100;
 
-const renderTypie = (state: GameState, playerID: number, userName: string, i: number): void => {
+const renderTypie = (state: GameState, player: Player, i: number): void => {
 	const maxPlayer = 4;
 	const canvasWidth = window.innerWidth;
 	const canvasHeight = window.innerHeight;
 
-	state.entities.typies.push(
-		new Typie(
-			state.spritesheet,
-			playerID,
-			userName,
-			leftMargin,
-			canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
-		)
+	const typie = new Typie(
+		state.spritesheet,
+		player.id,
+		player.userName,
+		leftMargin,
+		canvasHeight / maxPlayer * i + canvasHeight / maxPlayer / 2
 	);
+
+	// If this Typie has initial targetX...
+	if (player.position) {
+		typie.targetX = calcPos(player.position);
+	}
+
+	state.entities.typies.push(typie);
 	state.entities.hearts.push(
 		new Heart(
 			state.spritesheet,

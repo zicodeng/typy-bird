@@ -15,7 +15,7 @@ class App extends React.Component<any, any> {
 			isGameInProgress: false,
 			playerState: 'waiting',
 			counter: null,
-			counterVal: 3,
+			counterVal: 0,
 			gameRoom: null,
 			player: null
 		};
@@ -43,8 +43,7 @@ class App extends React.Component<any, any> {
 	}
 
 	public componentWillMount() {
-		this.fetchGameRoom();
-		this.fetchPlayer();
+		this.fetchGame();
 	}
 
 	public componentDidUpdate() {
@@ -90,7 +89,7 @@ class App extends React.Component<any, any> {
 					});
 					// If all players are ready, start the game.
 					if (this.checkPlayersState()) {
-						let counterVal = this.state.counterVal;
+						let counterVal = 3;
 						this.setState({
 							counter: setInterval(() => {
 								if (counterVal !== 0) {
@@ -113,39 +112,39 @@ class App extends React.Component<any, any> {
 
 	// When a new player first joins the game room,
 	// fetch the most updated game room.
-	private fetchGameRoom = (): void => {
+	private fetchGame = (): void => {
 		const url = `http://${this.getCurrentHost()}/gameroom`;
 		axios
 			.get(url)
 			.then(res => {
-				this.setState({
-					gameRoom: res.data
-				});
+				const gameRoom = res.data;
 				const websocket = this.establishWebsocket();
-				Game.Init(websocket, res.data);
-			})
-			.catch(error => {
-				console.log(error);
-			});
-	};
-
-	private fetchPlayer = (): void => {
-		const typieID = localStorage.getItem('TypieID');
-		if (!typieID) {
-			return;
-		}
-		const url = `http://${this.getCurrentHost()}/typie/me?auth=${typieID}`;
-		axios
-			.get(url)
-			.then(res => {
-				this.setState({
-					player: res.data
+				Game.Init(websocket, gameRoom);
+				console.log(gameRoom);
+				// Store the current player in memory.
+				const typieID = localStorage.getItem('TypieID');
+				gameRoom.players.forEach(player => {
+					if (player.id === typieID) {
+						this.setState({
+							gameRoom: gameRoom,
+							player: player
+						});
+						return;
+					} else {
+						// If no such player
+						// redirect to waiting room page.
+						localStorage.removeItem('TypieID');
+						window.location.replace('index.html');
+					}
 				});
+				if (this.checkPlayersState()) {
+					this.setState({
+						playerState: 'ready'
+					});
+				}
 			})
 			.catch(error => {
 				console.log(error.response.data);
-				localStorage.removeItem('TypieID');
-				window.location.replace('index.html');
 			});
 	};
 
