@@ -15,20 +15,6 @@ class Index extends React.Component<any, any> {
 		};
 	}
 
-	private fetchTopScores = (): void => {
-		const url = `http://${this.getCurrentHost()}/leaderboard`;
-		axios
-			.get(url)
-			.then(res => {
-				this.setState({
-					leaderboard: res.data
-				});
-			})
-			.catch(error => {
-				console.log(error);
-			});
-	};
-
 	public render() {
 		return (
 			<div className="container">
@@ -48,10 +34,13 @@ class Index extends React.Component<any, any> {
 	public componentWillMount() {
 		localStorage.clear();
 
-		//establish websocket collection
 		this.fetchTopScores();
+
+		this.fetchGameRoomStatus();
+
 		let host = this.getCurrentHost();
 
+		//establish websocket collection
 		const websocket = new WebSocket('ws://' + host + '/ws');
 
 		websocket.addEventListener('error', function(err) {
@@ -91,6 +80,35 @@ class Index extends React.Component<any, any> {
 			}
 		});
 	}
+
+	private fetchTopScores = (): void => {
+		const url = `http://${this.getCurrentHost()}/leaderboard`;
+		axios
+			.get(url)
+			.then(res => {
+				this.setState({
+					leaderboard: res.data
+				});
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
+	private fetchGameRoomStatus = () => {
+		const url = `http://${this.getCurrentHost()}/gameroom`;
+		axios
+			.get(url)
+			.then(res => {
+				const gameRoom = res.data;
+				this.setState({
+					available: gameRoom.available
+				});
+			})
+			.catch(err => {
+				console.log(err);
+			});
+	};
 
 	private renderButtons = (): JSX.Element => {
 		if (this.state.available) {

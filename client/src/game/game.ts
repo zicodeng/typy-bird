@@ -91,8 +91,6 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 	state.entities.typies = [];
 	state.entities.hearts = [];
 
-	console.log(initGameRoom);
-
 	// Preserve game start time.
 	state.startTime = new Date(initGameRoom.startTime);
 
