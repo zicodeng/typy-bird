@@ -40,6 +40,9 @@ class Typing extends React.Component<any, any> {
 		if (!this.state.dictionary) {
 			return null;
 		}
+		if (this.props.playerPos === 20) {
+			return <p>You have reached finish line :)</p>;
+		}
 		if (this.props.playerState === 'ready') {
 			return (
 				<div>

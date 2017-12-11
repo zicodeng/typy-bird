@@ -145,7 +145,7 @@ export const Init = (websocket: WebSocket, initGameRoom: GameRoom): void => {
 				break;
 
 			case 'GameStart':
-				state.startTime = new Date(data.startTime);
+				state.startTime = new Date(gameRoom.startTime);
 				break;
 
 			default:
@@ -234,7 +234,6 @@ const reachFinishLine = (state: GameState, gameRoom: GameRoom, playerID: number)
 		.then(res => {
 			let isGameEnded = true;
 			gameRoom.players.forEach(player => {
-				console.log(player.position);
 				if (player.position !== 20) {
 					isGameEnded = false;
 				}
@@ -257,7 +256,7 @@ const endGame = (state: GameState) => {
 		// Clear all typies in game state.
 		state.entities.typies = [];
 		window.location.replace('index.html');
-	}, 3000);
+	}, 1000);
 };
 
 const getCurrentHost = (): string => {

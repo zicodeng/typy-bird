@@ -66,11 +66,11 @@ func (c *HandlerContext) StartGameHandler(w http.ResponseWriter, r *http.Request
 		c.GameRoom.StartTime = startTime
 
 		wsPayload := struct {
-			Type      string    `json:"type,omitempty"`
-			StartTime time.Time `json:"startTime,omitempty"`
+			Type    string           `json:"type,omitempty"`
+			Payload *models.GameRoom `json:"payload,omitempty"`
 		}{
 			"GameStart",
-			startTime,
+			c.GameRoom,
 		}
 		//broadcast new gameroom state to client
 		payload, jsonErr := json.Marshal(wsPayload)

@@ -34,6 +34,7 @@ class App extends React.Component<any, any> {
 					<Typing
 						playerState={this.state.playerState}
 						getCurrentHost={() => this.getCurrentHost()}
+						playerPos={this.state.player.position}
 					/>
 				) : null}
 				<canvas id="bg-canvas" />
@@ -50,7 +51,7 @@ class App extends React.Component<any, any> {
 		const counter = this.state.counter;
 		// Start the game when the counterVal is 0,
 		// and stop counter.
-		if (this.state.counterVal === 0) {
+		if (this.state.gameRoom.available && this.state.counterVal === 0) {
 			clearInterval(counter);
 			this.startGame();
 		}
@@ -103,6 +104,22 @@ class App extends React.Component<any, any> {
 					}
 					break;
 
+				case 'Position':
+					gameRoom.players.forEach(player => {
+						if (this.state.player.id === player.id) {
+							this.setState({
+								player: player
+							});
+						}
+					});
+					break;
+
+				case 'GameStart':
+					this.setState({
+						gameRoom: gameRoom
+					});
+					break;
+
 				default:
 					break;
 			}
@@ -120,7 +137,6 @@ class App extends React.Component<any, any> {
 				const gameRoom = res.data;
 				const websocket = this.establishWebsocket();
 				Game.Init(websocket, gameRoom);
-				console.log(gameRoom);
 				// Store the current player in memory.
 				const typieID = localStorage.getItem('TypieID');
 				gameRoom.players.forEach(player => {
@@ -130,11 +146,6 @@ class App extends React.Component<any, any> {
 							player: player
 						});
 						return;
-					} else {
-						// If no such player
-						// redirect to waiting room page.
-						localStorage.removeItem('TypieID');
-						window.location.replace('index.html');
 					}
 				});
 				if (this.checkPlayersState()) {
@@ -145,6 +156,10 @@ class App extends React.Component<any, any> {
 				}
 			})
 			.catch(error => {
+				// If no such player
+				// redirect to waiting room page.
+				localStorage.removeItem('TypieID');
+				window.location.replace('index.html');
 				console.log(error.response.data);
 			});
 	};

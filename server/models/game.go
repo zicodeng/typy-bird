@@ -20,7 +20,7 @@ type LeaderBoard struct {
 //GameRoom represents the room of players
 type GameRoom struct {
 	Players   []*TypieBird `json:"players,omitempty"`
-	Available bool         `json:"available,omitempty"`
+	Available bool         `json:"available"`
 	StartTime time.Time    `json:"startTime,omitempty"`
 	mx        sync.RWMutex
 }
